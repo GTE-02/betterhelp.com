@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In & Security Verification — Drozo Therapy</title>
+  <meta name="description" content="Sign in to your confidential Drozo Therapy sanctuary. Hardware-bound protection with Face ID, Passkeys, Authenticator, or Drozo Guard phone sync.">
+
+  <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'media',
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              DEFAULT: '#2D6A4F',
+              light: '#40916C',
+              dark: '#1B4332',
+              50: '#EAF4EE',
+              100: '#D5E9DE',
+              200: '#ABCEBE',
+            },
+            sand: {
+              DEFAULT: '#F5F0E8',
+              light: '#FAF7F2',
+              dark: '#EDE5D8',
+              muted: '#E5DDCF',
+            },
+            accent: {
+              DEFAULT: '#E07A5F',
+              hover: '#CE6A4F',
+              light: '#FDF1ED',
+              dark: '#B8553B',
+            },
+            charcoal: {
+              DEFAULT: '#1B2A3D',
+              light: '#2B3E56',
+              dark: '#0F1824',
+              muted: '#5C6C7E',
+            }
+          },
+          fontFamily: {
+            heading: ['"Plus Jakarta Sans"', 'sans-serif'],
+            body: ['Inter', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- External libraries: Config, Supabase, Face-api, QRCode -->
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.13/dist/face-api.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #FAF7F2; color: #1B2A3D; }
+    h1, h2, h3, h4, .font-heading { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    .input-field:focus { border-color: #2D6A4F; box-shadow: 0 0 0 4px rgba(45, 106, 79, 0.12); }
+    @media (prefers-color-scheme: dark) {
+      body { background-color: #0F1824; color: #F8F7F4; }
+      .dark-card { background-color: #182637 !important; border-color: #273C56 !important; }
+      .dark-input { background-color: #121E2C !important; border-color: #273C56 !important; color: #fff !important; }
+    }
+  </style>
+</head>
+<body class="h-full flex flex-col antialiased selection:bg-primary-light selection:text-white">
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed top-5 right-5 z-50 max-w-md w-full px-4 pointer-events-none" aria-live="polite"></div>
+
+  <!-- Main Container -->
+  <main class="min-h-screen flex flex-col lg:flex-row w-full flex-grow">
+
+    <!-- LEFT PANEL: Interactive Forms & Verification Steps -->
+    <section class="w-full lg:w-[58%] xl:w-[60%] flex flex-col justify-between p-6 sm:p-10 lg:p-12 relative z-10 transition-colors">
+      
+      <!-- Top Header Navigation -->
+      <header class="flex items-center justify-between w-full max-w-xl mx-auto mb-6">
+        <a href="index.html" class="flex items-center gap-2.5 group focus:outline-none">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary-light flex items-center justify-center text-white shadow-md shadow-primary/20 transition-transform duration-300 group-hover:scale-105">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22C12 22 20 18 20 10C20 4.5 15.5 2 12 2C8.5 2 4 4.5 4 10C4 18 12 22 12 22Z" fill="rgba(255, 255, 255, 0.2)"></path>
+              <path d="M12 2V22"></path>
+            </svg>
+          </div>
+          <div class="flex flex-col">
+            <span class="font-heading font-extrabold text-2xl tracking-tight text-charcoal dark:text-white">Drozo</span>
+            <span class="text-[10px] font-semibold tracking-widest uppercase -mt-1 text-primary">Therapy</span>
+          </div>
+        </a>
+
+        <div class="flex items-center gap-3">
+          <button type="button" onclick="toggleGuardModeView()" id="btnToggleGuard" class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary bg-primary/10 hover:bg-primary/20 py-1.5 px-3 rounded-full transition">
+            <span>🛡️ Drozo Guard Companion</span>
+          </button>
+          <a href="index.html" class="text-xs sm:text-sm font-semibold text-charcoal-muted hover:text-primary transition py-1.5 px-3 rounded-full hover:bg-sand/70">
+            &#8249; Back to Home
+          </a>
+        </div>
+      </header>
+
+      <!-- CENTER CARD: Dynamic Views -->
+      <div class="w-full max-w-xl mx-auto my-auto py-4">
+
+        <!-- ========================================== -->
+        <!-- VIEW 1: SIGN IN / REGISTER FORM            -->
+        <!-- ========================================== -->
+        <div id="viewStep1" class="space-y-6">
+          <div class="text-center sm:text-left">
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-3">
+              <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+              Confidential & Protected Sanctuary
+            </div>
+            <h1 id="authHeading" class="font-heading text-3xl sm:text-4xl font-extrabold tracking-tight">
+              Welcome to Drozo Therapy
+            </h1>
+            <p id="authSubheading" class="mt-2 text-sm sm:text-base text-charcoal-muted">
+              Sign in to access your confidential therapy sanctuary, schedule, and encounter notes.
+            </p>
+          </div>
+
+          <!-- Auth Mode Tabs -->
+          <div class="p-1.5 bg-sand-dark/60 rounded-2xl flex items-center border border-sand-muted">
+            <button type="button" id="tabSigninBtn" onclick="switchAuthTab('login')" class="flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition shadow-sm bg-white text-primary">
+              Sign In
+            </button>
+            <button type="button" id="tabRegisterBtn" onclick="switchAuthTab('register')" class="flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition text-charcoal-muted hover:text-charcoal">
+              Create Account
+            </button>
+          </div>
+
+          <form id="formCredentials" onsubmit="handleAuthSubmit(event)" class="space-y-4">
+            <div>
+              <label for="authEmail" class="block text-xs font-bold uppercase tracking-wider text-charcoal-muted mb-1.5">
+                Email Address
+              </label>
+              <input type="email" id="authEmail" required autocomplete="email" placeholder="you@example.com" class="input-field dark-input w-full px-4 py-3 text-sm rounded-xl border border-sand-dark bg-white focus:outline-none transition" />
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <label for="authPassword" class="block text-xs font-bold uppercase tracking-wider text-charcoal-muted">
+                  Password
+                </label>
+                <button type="button" onclick="showForgotPasswordAlert()" class="text-xs font-semibold text-primary hover:underline">
+                  Forgot password?
+                </button>
+              </div>
+              <input type="password" id="authPassword" required autocomplete="current-password" placeholder="••••••••••••" class="input-field dark-input w-full px-4 py-3 text-sm rounded-xl border border-sand-dark bg-white focus:outline-none transition" />
+              <p id="passwordHint" class="text-[11px] text-charcoal-muted mt-1 hidden">Minimum 8 characters with letters and numbers.</p>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" id="btnSubmitAuth" class="w-full py-3.5 bg-primary hover:bg-primary-dark text-white font-heading font-bold text-sm rounded-xl transition shadow-lg shadow-primary/25 flex items-center justify-center gap-2">
+              <span id="btnSubmitAuthText">Sign In to Sanctuary →</span>
+            </button>
+
+            <!-- Passkey Fast Sign In (if supported) -->
+            <button type="button" onclick="handlePasskeyFastLogin()" class="w-full py-3 bg-white dark:bg-sand-dark border border-sand-dark hover:border-primary/50 text-charcoal dark:text-white font-bold text-xs rounded-xl transition flex items-center justify-center gap-2 shadow-sm">
+              <span>👆</span> Sign in with Fingerprint / Passkey
+            </button>
+          </form>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 2: 2FA ONBOARDING / SETUP SELECTION   -->
+        <!-- ========================================== -->
+        <div id="viewOnboarding" class="space-y-5 hidden">
+          <div class="text-center sm:text-left">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-bold mb-2">
+              🛡️ Account Protection Setup
+            </span>
+            <h2 class="text-2xl font-extrabold font-heading text-charcoal dark:text-white">Choose Your Security Check</h2>
+            <p class="text-xs text-charcoal-muted mt-1">Select your preferred 2FA method for every login. Your confidential medical sanctuary is secured with this check.</p>
+          </div>
+
+          <div class="space-y-3">
+            <!-- Option A: Drozo Guard Phone -->
+            <button type="button" onclick="startDrozoGuardEnrollment()" class="w-full p-4 rounded-2xl bg-white dark:bg-sand-dark border-2 border-transparent hover:border-primary text-left transition flex items-center justify-between shadow-sm group">
+              <div class="flex items-center gap-3.5">
+                <div class="w-11 h-11 rounded-xl bg-sky-50 dark:bg-sky-950 flex items-center justify-center text-xl text-sky-600">🛡️</div>
+                <div>
+                  <div class="text-xs sm:text-sm font-bold text-charcoal dark:text-white group-hover:text-primary transition">Drozo Guard (Phone Sync)</div>
+                  <div class="text-[11px] text-charcoal-muted">Approve logins instantly from your phone browser or companion app.</div>
+                </div>
+              </div>
+              <span class="text-xs font-bold text-primary">Select →</span>
+            </button>
+
+            <!-- Option B: Authenticator App (Google Authenticator / Authy) -->
+            <button type="button" onclick="startAuthenticatorEnrollment()" class="w-full p-4 rounded-2xl bg-white dark:bg-sand-dark border-2 border-transparent hover:border-primary text-left transition flex items-center justify-between shadow-sm group">
+              <div class="flex items-center gap-3.5">
+                <div class="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center text-xl text-primary">📱</div>
+                <div>
+                  <div class="text-xs sm:text-sm font-bold text-charcoal dark:text-white group-hover:text-primary transition">Authenticator App</div>
+                  <div class="text-[11px] text-charcoal-muted">6-digit time-based code from Google Authenticator, 1Password, or Authy.</div>
+                </div>
+              </div>
+              <span class="text-xs font-bold text-primary">Select →</span>
+            </button>
+
+            <!-- Option C: Face ID -->
+            <button type="button" onclick="startFaceEnrollment()" class="w-full p-4 rounded-2xl bg-white dark:bg-sand-dark border-2 border-transparent hover:border-primary text-left transition flex items-center justify-between shadow-sm group">
+              <div class="flex items-center gap-3.5">
+                <div class="w-11 h-11 rounded-xl bg-indigo-50 dark:bg-indigo-950 flex items-center justify-center text-xl text-indigo-600">🙂</div>
+                <div>
+                  <div class="text-xs sm:text-sm font-bold text-charcoal dark:text-white group-hover:text-primary transition">Face ID (Biometric Scan)</div>
+                  <div class="text-[11px] text-charcoal-muted">Automatic AI face scan. Encrypted numeric vector stored securely.</div>
+                </div>
+              </div>
+              <span class="text-xs font-bold text-primary">Select →</span>
+            </button>
+
+            <!-- Option D: Fingerprint / Touch ID Passkey -->
+            <button type="button" onclick="startFingerprintEnrollment()" class="w-full p-4 rounded-2xl bg-white dark:bg-sand-dark border-2 border-transparent hover:border-primary text-left transition flex items-center justify-between shadow-sm group">
+              <div class="flex items-center gap-3.5">
+                <div class="w-11 h-11 rounded-xl bg-emerald-50 dark:bg-emerald-950 flex items-center justify-center text-xl text-emerald-600">👆</div>
+                <div>
+                  <div class="text-xs sm:text-sm font-bold text-charcoal dark:text-white group-hover:text-primary transition">Fingerprint / Touch ID Passkey</div>
+                  <div class="text-[11px] text-charcoal-muted">Hardware-bound device security passkey linked to your account.</div>
+                </div>
+              </div>
+              <span class="text-xs font-bold text-primary">Select →</span>
+            </button>
+
+            <!-- Skip Warning -->
+            <button type="button" onclick="triggerSkip2FAWarning()" class="w-full py-2.5 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 transition text-center text-xs font-bold mt-2">
+              ⚠️ Skip 2FA Protection (Sign In With Password Only)
+            </button>
+
+            <button type="button" onclick="backToStep1()" class="w-full text-xs text-charcoal-muted hover:underline text-center mt-2">
+              &#8249; Sign Out & Return to Sign In
+            </button>
+          </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 3: WIZARD AUTHENTICATOR ENROLLMENT    -->
+        <!-- ========================================== -->
+        <div id="wizardAuthenticator" class="space-y-5 hidden text-center">
+          <div>
+            <div class="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center text-2xl mx-auto mb-2">📱</div>
+            <h3 class="text-lg font-extrabold text-charcoal dark:text-white">Link Authenticator App</h3>
+            <p class="text-xs text-charcoal-muted">Scan this QR code using Google Authenticator, Authy, or Apple Passwords:</p>
+          </div>
+
+          <div class="flex justify-center py-2">
+            <div class="p-3 bg-white rounded-2xl border border-sand-dark shadow-sm">
+              <div id="enrollTotpQrContainer" class="w-[160px] h-[160px] flex items-center justify-center"></div>
+            </div>
+          </div>
+
+          <div class="bg-sand p-2.5 rounded-xl text-[11px] mono text-charcoal-muted select-all break-all">
+            Secret Seed: <strong id="enrollTotpSecretText" class="text-charcoal font-bold">(generating…)</strong>
+          </div>
+
+          <div class="space-y-3">
+            <label class="block text-[11px] font-bold uppercase text-charcoal-muted text-left">Verify Linking (Enter 6-digit Code)</label>
+            <input type="text" id="testTotpInput" maxlength="6" inputmode="numeric" placeholder="123456" class="w-full text-center tracking-widest text-lg font-bold mono px-4 py-2.5 rounded-xl border border-sand-dark focus:outline-none focus:border-primary" />
+            <button type="button" onclick="handleTestTotpLink()" class="w-full py-3 bg-primary hover:bg-primary-dark text-white rounded-xl text-xs font-bold transition shadow">
+              Confirm & Save Link →
+            </button>
+          </div>
+
+          <button type="button" onclick="backToOnboardingChoice()" class="text-xs text-charcoal-muted hover:underline">
+            ← Choose Different Method
+          </button>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 4: VERIFICATION - STANDARD TOTP       -->
+        <!-- ========================================== -->
+        <div id="authStep3Standard" class="space-y-5 hidden text-center">
+          <div>
+            <div class="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center text-2xl mx-auto mb-2">🔐</div>
+            <h3 class="text-lg font-extrabold text-charcoal dark:text-white">Enter Authenticator Code</h3>
+            <p class="text-xs text-charcoal-muted">Enter the 6-digit verification code from your Authenticator app for <strong id="verifyUserEmail" class="text-charcoal"></strong>.</p>
+          </div>
+
+          <div class="space-y-3">
+            <input type="text" id="totpInput" maxlength="6" inputmode="numeric" placeholder="123456" onkeydown="if(event.key === 'Enter') handleStandardTOTP()" class="w-full text-center tracking-widest text-2xl font-bold mono px-4 py-3 rounded-xl border border-sand-dark focus:outline-none focus:border-primary" />
+            <button type="button" onclick="handleStandardTOTP()" class="w-full py-3.5 bg-primary hover:bg-primary-dark text-white rounded-xl text-xs font-bold transition shadow-lg">
+              Verify & Enter Sanctuary →
+            </button>
+          </div>
+
+          <button type="button" onclick="backToStep1()" class="text-xs text-charcoal-muted hover:underline">
+            &#8249; Cancel & Return to Sign In
+          </button>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 5: VERIFICATION - DROZO GUARD QR      -->
+        <!-- ========================================== -->
+        <div id="authStep3Guard" class="space-y-5 hidden text-center">
+          <div class="flex items-center justify-between border-b border-sand-dark pb-3">
+            <div class="flex items-center gap-2">
+              <span class="text-lg">🛡️</span>
+              <span class="text-xs font-extrabold uppercase tracking-widest text-primary">Drozo Guard Sync</span>
+            </div>
+            <span class="text-[10px] mono text-primary bg-primary/10 px-2 py-0.5 rounded-full font-bold animate-pulse">Awaiting Approval</span>
+          </div>
+
+          <p class="text-xs text-charcoal-muted">Open Drozo Guard on your phone or scan this code to approve your sign-in request:</p>
+
+          <div class="flex justify-center py-2">
+            <div class="p-3 bg-white rounded-3xl border border-sand-dark shadow-xl">
+              <div id="qrCanvasContainer" class="w-[160px] h-[160px] flex items-center justify-center"></div>
+            </div>
+          </div>
+
+          <div class="bg-sand p-2.5 rounded-xl text-xs text-charcoal-muted flex items-center justify-between">
+            <span>Challenge Token:</span>
+            <span class="mono text-primary font-bold" id="steamTokenLabel">DG_PENDING</span>
+          </div>
+
+          <div class="pt-1 flex gap-2">
+            <button type="button" onclick="openApprovalSimulator()" class="flex-1 py-2.5 px-3 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl text-xs shadow transition">
+              📲 Open Approval on this device
+            </button>
+          </div>
+
+          <button type="button" onclick="backToStep1()" class="text-xs text-charcoal-muted hover:underline">
+            &#8249; Cancel & Return to Sign In
+          </button>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 6: DROZO GUARD COMPANION (PHONE MODE) -->
+        <!-- ========================================== -->
+        <div id="viewGuardCompanion" class="space-y-5 hidden">
+          <div class="p-4 rounded-2xl bg-charcoal text-white flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="text-xl">🛡️</span>
+              <div>
+                <div class="text-xs font-bold uppercase tracking-wider text-sky-400">Drozo Guard Mobile Companion</div>
+                <div class="text-[11px] text-slate-300" id="guardUserDisplay">Ready for authorization requests</div>
+              </div>
+            </div>
+            <button type="button" onclick="toggleGuardModeView()" class="text-xs text-slate-400 hover:text-white underline">
+              Close
+            </button>
+          </div>
+
+          <!-- Active Challenge Card -->
+          <div id="guardChallengeBox" class="p-5 rounded-2xl bg-white dark:bg-sand-dark border border-sand-dark shadow-md space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase text-primary">Pending Authorization</span>
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping"></span>
+            </div>
+            <p class="text-xs text-charcoal dark:text-white leading-relaxed">
+              A sign-in request was initiated for your Drozo Therapy account. Did you just request access?
+            </p>
+            <div class="p-3 rounded-xl bg-sand text-xs font-mono text-charcoal" id="guardChallengeDetails">
+              Checking for active challenges…
+            </div>
+            <div class="grid grid-cols-2 gap-3 pt-2">
+              <button type="button" onclick="respondGuardChallenge('denied')" class="py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold rounded-xl text-xs border border-rose-200 transition">
+                ✕ Deny Request
+              </button>
+              <button type="button" onclick="respondGuardChallenge('authorized')" class="py-2.5 bg-primary hover:bg-primary-dark text-white font-bold rounded-xl text-xs transition shadow">
+                ✓ Approve Sign-In
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 7: CRITICAL SKIP WARNING MODAL        -->
+        <!-- ========================================== -->
+        <div id="skipWarningModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+          <div class="bg-white dark:bg-charcoal border border-rose-500/50 w-full max-w-sm rounded-3xl p-6 shadow-2xl text-center space-y-4">
+            <div class="w-14 h-14 rounded-2xl bg-rose-100 dark:bg-rose-950 text-rose-600 text-3xl flex items-center justify-center mx-auto">⚠️</div>
+            <div class="space-y-1.5">
+              <h3 class="text-base font-black text-rose-600 uppercase">Critical Security Hazard</h3>
+              <p class="text-xs font-bold text-rose-800 dark:text-rose-200 bg-rose-50 dark:bg-rose-950/40 p-3 rounded-xl border border-rose-200 dark:border-rose-800">
+                Skipping 2FA makes your mental health sanctuary vulnerable to unauthorized takeover.
+              </p>
+              <p class="text-[11px] text-charcoal-muted">
+                Anyone with your password will have unrestricted access to confidential session history.
+              </p>
+            </div>
+            <div class="space-y-2 pt-2">
+              <button type="button" onclick="confirmPasswordOnlyMode()" class="w-full py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-xs transition shadow">
+                I Understand Risk & Continue Without 2FA
+              </button>
+              <button type="button" onclick="cancelSkip2FAWarning()" class="w-full py-2.5 bg-sand hover:bg-sand-dark text-charcoal text-xs font-bold rounded-xl transition">
+                ← Go Back & Protect My Account
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bottom Trust Badges -->
+      <footer class="w-full max-w-xl mx-auto pt-6 border-t border-sand-dark text-center sm:text-left text-xs text-charcoal-muted flex flex-col sm:flex-row items-center justify-between gap-2">
+        <span>© 2026 Drozo Therapy. All rights reserved.</span>
+        <div class="flex gap-3 text-xs">
+          <span class="inline-flex items-center gap-1">🔒 256-bit Encrypted</span>
+          <span>•</span>
+          <span>HIPAA & GDPR Standards</span>
+        </div>
+      </footer>
+    </section>
+
+    <!-- RIGHT PANEL: Calming Therapy Hero & Value Proposition (40% Desktop) -->
+    <section class="hidden lg:flex w-full lg:w-[42%] xl:w-[40%] bg-gradient-to-br from-primary-dark via-primary to-[#1B4332] text-white p-12 flex-col justify-between relative overflow-hidden">
+      <!-- Decorative organic glow background shapes -->
+      <div class="absolute -top-24 -right-24 w-96 h-96 bg-primary-light/20 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute bottom-0 left-0 w-80 h-80 bg-accent/15 rounded-full blur-2xl pointer-events-none"></div>
+
+      <!-- Top quote badge -->
+      <div class="relative z-10">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 text-sand-light text-xs font-semibold backdrop-blur-md">
+          <span>🌿</span> Calming, Patient-Centered Sanctuary
+        </div>
+      </div>
+
+      <!-- Center inspirational text -->
+      <div class="relative z-10 my-auto py-12 space-y-6">
+        <h2 class="font-heading text-3xl xl:text-4xl font-extrabold leading-snug">
+          "The first step toward healing is giving yourself permission to be supported."
+        </h2>
+        <p class="text-sand-light/80 text-sm leading-relaxed max-w-md">
+          At Drozo Therapy, every encounter is confidential, encrypted, and designed around your comfort. Whether meeting on Discord voice or high-definition Jitsi video, you are always in control.
+        </p>
+
+        <!-- Feature Points -->
+        <div class="grid grid-cols-1 gap-3.5 pt-4">
+          <div class="flex items-center gap-3 bg-white/5 border border-white/10 p-3 rounded-2xl backdrop-blur-sm">
+            <span class="text-xl">🔒</span>
+            <div class="text-xs">
+              <strong class="text-white block font-heading">Hardware-Bound Security</strong>
+              <span class="text-sand-light/75">Biometric Face ID, Passkeys & Drozo Guard phone sync.</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 bg-white/5 border border-white/10 p-3 rounded-2xl backdrop-blur-sm">
+            <span class="text-xl">🗂️</span>
+            <div class="text-xs">
+              <strong class="text-white block font-heading">Sanctuary Vault</strong>
+              <span class="text-sand-light/75">Confidential client-side files saved directly on your device.</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 bg-white/5 border border-white/10 p-3 rounded-2xl backdrop-blur-sm">
+            <span class="text-xl">📄</span>
+            <div class="text-xs">
+              <strong class="text-white block font-heading">Verified Clinical Outcomes</strong>
+              <span class="text-sand-light/75">Download official clinical progress documentation anytime.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom crisis hotline info -->
+      <div class="relative z-10 text-[11px] text-sand-light/70 border-t border-white/10 pt-4">
+        Need immediate crisis support? Call or text <strong class="text-white">988</strong> or your local emergency services. Drozo Therapy is not an emergency hotline.
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- SCRIPT: Real Supabase Auth, Biometrics, Drozo Guard Sync                  -->
+  <!-- ========================================================================= -->
+  <script>
+    const SUPABASE_URL = (window.DROZO_CONFIG || {}).url;
+    const SUPABASE_ANON = (window.DROZO_CONFIG || {}).anon;
+    const STAFF_ROLES = ["therapist", "coordinator", "admin"];
+
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        experimental: { passkey: true }
+      }
+    });
+
+    let currentAuthMode = 'login';
+    let me = null;
+    let pendingFactorId = '';
+    let activeChallenge = '';
+    let pollTimer = null;
+    let guardEnrolling = false;
+    let guardPollTimer = null;
+
+    // Helper utilities
+    const $ = (id) => document.getElementById(id);
+    const show = (id) => { const el = $(id); if (el) el.classList.remove('hidden'); };
+    const hide = (id) => { const el = $(id); if (el) el.classList.add('hidden'); };
+    const errMsg = (e) => (e && e.message) ? e.message : String(e);
+
+    function showToast(message, type = 'info') {
+      const container = $('toast-container');
+      const toast = document.createElement('div');
+      const bg = type === 'error' ? 'bg-rose-600' : (type === 'success' ? 'bg-primary' : 'bg-charcoal');
+      toast.className = `flex items-center gap-3 p-4 rounded-2xl ${bg} text-white shadow-xl border border-white/15 mb-3 w-full pointer-events-auto transition transform translate-y-2`;
+      toast.innerHTML = `<span class="text-sm font-medium flex-1">${message}</span><button onclick="this.parentElement.remove()" class="text-white/70 hover:text-white">&times;</button>`;
+      container.appendChild(toast);
+      setTimeout(() => { toast.remove(); }, 4000);
+    }
+
+    // Switch between Sign In and Register tabs
+    function switchAuthTab(mode) {
+      currentAuthMode = mode;
+      const isReg = mode === 'register';
+      $('tabSigninBtn').className = isReg 
+        ? 'flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition text-charcoal-muted hover:text-charcoal' 
+        : 'flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition shadow-sm bg-white text-primary';
+      $('tabRegisterBtn').className = isReg 
+        ? 'flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition shadow-sm bg-white text-primary' 
+        : 'flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition text-charcoal-muted hover:text-charcoal';
+
+      $('authHeading').textContent = isReg ? 'Create Your Account' : 'Welcome to Drozo Therapy';
+      $('authSubheading').textContent = isReg 
+        ? 'Create your confidential credentials. You can set up your biometric protection next.' 
+        : 'Sign in to access your confidential therapy sanctuary, schedule, and encounter notes.';
+      $('btnSubmitAuthText').textContent = isReg ? 'Create Account & Continue →' : 'Sign In to Sanctuary →';
+      if (isReg) show('passwordHint'); else hide('passwordHint');
+    }
+
+    // Boot & Session Check
+    window.addEventListener('DOMContentLoaded', async () => {
+      // Check if opening as Drozo Guard companion
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('guard') === '1') {
+        toggleGuardModeView();
+      }
+
+      try {
+        const { data } = await sb.auth.getSession();
+        if (data && data.session) {
+          await routeAfterAuth(false);
+        }
+      } catch (_) {}
+    });
+
+    // Handle Form Submit (Sign In or Sign Up)
+    async function handleAuthSubmit(e) {
+      e.preventDefault();
+      const email = $('authEmail').value.trim().toLowerCase();
+      const pass = $('authPassword').value;
+
+      if (!email || !pass) {
+        showToast('Please enter both email and password.', 'error');
+        return;
+      }
+
+      if (currentAuthMode === 'register' && pass.length < 8) {
+        showToast('Password must be at least 8 characters long.', 'error');
+        return;
+      }
+
+      const btn = $('btnSubmitAuth');
+      btn.disabled = true;
+      btn.classList.add('opacity-75');
+      $('btnSubmitAuthText').textContent = 'Authenticating…';
+
+      try {
+        if (currentAuthMode === 'register') {
+          const { data, error } = await sb.auth.signUp({
+            email: email,
+            password: pass,
+            options: { emailRedirectTo: window.location.origin + window.location.pathname }
+          });
+          if (error) throw error;
+          if (!data.session) {
+            showToast('Account registered! Please check your email to confirm, then sign in.', 'success');
+            switchAuthTab('login');
+            return;
+          }
+          await routeAfterAuth(true);
+        } else {
+          const { error } = await sb.auth.signInWithPassword({ email: email, password: pass });
+          if (error) throw error;
+          await routeAfterAuth(false);
+        }
+      } catch (err) {
+        showToast(errMsg(err), 'error');
+      } finally {
+        btn.disabled = false;
+        btn.classList.remove('opacity-75');
+        $('btnSubmitAuthText').textContent = currentAuthMode === 'register' ? 'Create Account & Continue →' : 'Sign In to Sanctuary →';
+      }
+    }
+
+    // Load Profile & Route
+    async function loadMe() {
+      const { data: { user } } = await sb.auth.getUser();
+      if (!user) { me = null; return null; }
+      let res = await sb.from('profiles').select('id,email,role,twofa_pref,face_login').eq('id', user.id).maybeSingle();
+      if (res.error) {
+        res = await sb.from('profiles').select('id,email,role,twofa_pref').eq('id', user.id).maybeSingle();
+      }
+      me = res.data ? Object.assign({ face_login: false }, res.data) : { id: user.id, email: user.email, role: 'patient', twofa_pref: null };
+      return me;
+    }
+
+    async function setPref(pref) {
+      if (!me) return;
+      const { error } = await sb.from('profiles').update({ twofa_pref: pref }).eq('id', me.id);
+      if (error) throw error;
+      me.twofa_pref = pref;
+    }
+
+    async function routeAfterAuth(isNew, viaPasskey = false) {
+      try {
+        await loadMe();
+        if (!me) return;
+
+        // Check AAL level for TOTP
+        const aal = (await sb.auth.mfa.getAuthenticatorAssuranceLevel()).data;
+        if (aal && aal.nextLevel === 'aal2' && aal.currentLevel !== 'aal2') {
+          ['viewStep1', 'viewOnboarding', 'wizardAuthenticator', 'authStep3Guard'].forEach(hide);
+          $('verifyUserEmail').textContent = me.email;
+          show('authStep3Standard');
+          return;
+        }
+
+        const factors = ((await sb.auth.mfa.listFactors()).data || {}).totp || [];
+        const forced = localStorage.getItem('drozo_force_setup_wizard') === me.id;
+
+        // If newly registered, or no 2FA chosen yet, show onboarding
+        if (isNew || forced || (!me.twofa_pref && !viaPasskey) || (me.twofa_pref === 'totp' && !factors.length)) {
+          localStorage.removeItem('drozo_force_setup_wizard');
+          showOnboardingChoice();
+          return;
+        }
+
+        // Drozo Guard phone 2FA required
+        if (me.twofa_pref === 'drozo_guard' && sessionStorage.getItem('drozo_guard_ok_' + me.id) !== '1') {
+          startDrozoGuard2FA(false);
+          return;
+        }
+
+        // Face ID 2FA required
+        if (me.twofa_pref === 'face' && sessionStorage.getItem('drozo_face_ok_' + me.id) !== '1') {
+          ['viewStep1', 'viewOnboarding'].forEach(hide);
+          const ok = await requireFace();
+          if (!ok) { await backToStep1(); return; }
+          sessionStorage.setItem('drozo_face_ok_' + me.id, '1');
+        }
+
+        // Fingerprint passkey 2FA required
+        if (me.twofa_pref === 'fingerprint' && !viaPasskey && sessionStorage.getItem('drozo_fp_ok_' + me.id) !== '1') {
+          const passkeyOk = await verifyPasskeyLogin();
+          if (!passkeyOk) { await backToStep1(); return; }
+          sessionStorage.setItem('drozo_fp_ok_' + me.id, '1');
+        }
+
+        // Authentication Successful -> Redirect to Sanctuary
+        completeSuccessfulLogin();
+      } catch (err) {
+        showToast('Error loading session: ' + errMsg(err), 'error');
+      }
+    }
+
+    function completeSuccessfulLogin() {
+      localStorage.setItem('drozo_active_session', me.email);
+      showToast('Authentication Verified! Welcome, ' + me.email, 'success');
+      setTimeout(() => {
+        if (STAFF_ROLES.includes(me.role)) {
+          window.location.href = 'admin.html';
+        } else {
+          window.location.href = 'index.html';
+        }
+      }, 700);
+    }
+
+    function showOnboardingChoice() {
+      ['viewStep1', 'authStep3Guard', 'authStep3Standard', 'wizardAuthenticator'].forEach(hide);
+      show('viewOnboarding');
+    }
+
+    function backToOnboardingChoice() {
+      hide('wizardAuthenticator');
+      show('viewOnboarding');
+    }
+
+    async function backToStep1() {
+      if (pollTimer) clearInterval(pollTimer);
+      try { await sb.auth.signOut(); } catch (_) {}
+      me = null;
+      ['viewOnboarding', 'wizardAuthenticator', 'authStep3Guard', 'authStep3Standard', 'skipWarningModal'].forEach(hide);
+      show('viewStep1');
+    }
+
+    // --- Drozo Guard Phone Sync ---
+    function startDrozoGuardEnrollment() {
+      hide('viewOnboarding');
+      startDrozoGuard2FA(true);
+    }
+
+    async function startDrozoGuard2FA(enrolling) {
+      guardEnrolling = !!enrolling;
+      ['viewStep1', 'viewOnboarding', 'wizardAuthenticator'].forEach(hide);
+      show('authStep3Guard');
+
+      try {
+        const { data, error } = await sb.from('guard_challenges').insert({}).select('id').single();
+        if (error) throw error;
+        activeChallenge = data.id;
+        $('steamTokenLabel').textContent = activeChallenge.slice(0, 8).toUpperCase();
+
+        const guardUrl = window.location.origin + window.location.pathname + '?guard=1&token=' + activeChallenge;
+        const box = $('qrCanvasContainer');
+        box.innerHTML = '';
+        try {
+          new QRCode(box, { text: guardUrl, width: 160, height: 160, colorDark: '#1B2A3D', colorLight: '#ffffff' });
+        } catch (_) {
+          box.textContent = 'Scan code with Drozo Guard app: ' + guardUrl;
+        }
+
+        if (pollTimer) clearInterval(pollTimer);
+        const started = Date.now();
+        pollTimer = setInterval(async () => {
+          if (Date.now() - started > 5 * 60 * 1000) {
+            clearInterval(pollTimer);
+            showToast('Drozo Guard approval expired. Please try again.', 'error');
+            backToStep1();
+            return;
+          }
+          const { data: row } = await sb.from('guard_challenges').select('status').eq('id', activeChallenge).maybeSingle();
+          if (row && row.status === 'authorized') {
+            clearInterval(pollTimer);
+            sessionStorage.setItem('drozo_guard_ok_' + me.id, '1');
+            if (guardEnrolling) await setPref('drozo_guard');
+            completeSuccessfulLogin();
+          } else if (row && row.status === 'denied') {
+            clearInterval(pollTimer);
+            showToast('Sign-in was rejected on your phone.', 'error');
+            backToStep1();
+          }
+        }, 1500);
+      } catch (err) {
+        showToast('Could not initiate Drozo Guard: ' + errMsg(err), 'error');
+        backToStep1();
+      }
+    }
+
+    function openApprovalSimulator() {
+      const guardUrl = window.location.origin + window.location.pathname + '?guard=1&token=' + activeChallenge;
+      window.open(guardUrl, '_blank');
+    }
+
+    // --- Authenticator (TOTP) ---
+    async function startAuthenticatorEnrollment() {
+      hide('viewOnboarding');
+      show('wizardAuthenticator');
+      const box = $('enrollTotpQrContainer');
+      box.textContent = 'Generating secret key…';
+      $('enrollTotpSecretText').textContent = '…';
+
+      try {
+        const lf = (await sb.auth.mfa.listFactors()).data;
+        for (const f of ((lf && lf.all) || [])) {
+          if (f.factor_type === 'totp' && f.status === 'unverified') {
+            await sb.auth.mfa.unenroll({ factorId: f.id });
+          }
+        }
+        const { data, error } = await sb.auth.mfa.enroll({ factorType: 'totp', friendlyName: 'Drozo Therapy - ' + me.email });
+        if (error) throw error;
+        pendingFactorId = data.id;
+        $('enrollTotpSecretText').textContent = data.totp.secret;
+        box.innerHTML = `<img src="${data.totp.qr_code}" alt="Authenticator QR Code" class="w-36 h-36" />`;
+      } catch (err) {
+        showToast('Authenticator Setup Error: ' + errMsg(err), 'error');
+        backToOnboardingChoice();
+      }
+    }
+
+    async function handleTestTotpLink() {
+      const input = $('testTotpInput');
+      const code = input.value.trim();
+      if (!code) return;
+      const { error } = await sb.auth.mfa.challengeAndVerify({ factorId: pendingFactorId, code: code });
+      if (error) {
+        showToast('Invalid verification code. Please check your app.', 'error');
+        input.value = '';
+        return;
+      }
+      await setPref('totp');
+      hide('wizardAuthenticator');
+      completeSuccessfulLogin();
+    }
+
+    async function handleStandardTOTP() {
+      const input = $('totpInput');
+      const code = input.value.trim();
+      if (!code) return;
+      const totp = ((await sb.auth.mfa.listFactors()).data || {}).totp || [];
+      if (!totp.length) {
+        showToast('No authenticator factor found for this account.', 'error');
+        return;
+      }
+      const { error } = await sb.auth.mfa.challengeAndVerify({ factorId: totp[0].id, code: code });
+      if (error) {
+        showToast('Invalid 6-digit verification code.', 'error');
+        input.value = '';
+        return;
+      }
+      hide('authStep3Standard');
+      completeSuccessfulLogin();
+    }
+
+    // --- Fingerprint / Passkeys ---
+    async function startFingerprintEnrollment() {
+      hide('viewOnboarding');
+      try {
+        if (typeof sb.auth.registerPasskey !== 'function') throw new Error('Passkey API not supported on this browser.');
+        const { error } = await sb.auth.registerPasskey();
+        if (error) throw error;
+        await setPref('fingerprint');
+        sessionStorage.setItem('drozo_fp_ok_' + me.id, '1');
+        showToast('Fingerprint passkey linked to ' + me.email, 'success');
+        completeSuccessfulLogin();
+      } catch (err) {
+        showToast('Passkey setup error: ' + errMsg(err), 'error');
+        showOnboardingChoice();
+      }
+    }
+
+    async function handlePasskeyFastLogin() {
+      try {
+        if (typeof sb.auth.signInWithPasskey !== 'function') throw new Error('Passkeys not supported.');
+        const { error } = await sb.auth.signInWithPasskey();
+        if (error) throw error;
+        await routeAfterAuth(false, true);
+      } catch (err) {
+        showToast('Passkey sign in: ' + errMsg(err), 'error');
+      }
+    }
+
+    async function verifyPasskeyLogin() {
+      try {
+        const { error } = await sb.auth.signInWithPasskey();
+        return !error;
+      } catch (_) { return false; }
+    }
+
+    // --- Face ID Biometrics ---
+    async function startFaceEnrollment() {
+      hide('viewOnboarding');
+      try {
+        showToast('Starting Face ID scanner… please grant camera permission.', 'info');
+        const r = await FaceID.run('enroll');
+        const { error } = await sb.rpc('enroll_my_face', { poses: r.poses });
+        if (error) throw error;
+        await setPref('face');
+        sessionStorage.setItem('drozo_face_ok_' + me.id, '1');
+        showToast('Face ID successfully enrolled and linked!', 'success');
+        completeSuccessfulLogin();
+      } catch (err) {
+        showToast('Face ID setup: ' + errMsg(err), 'error');
+        showOnboardingChoice();
+      }
+    }
+
+    async function requireFace() {
+      try {
+        showToast('Starting Face ID verification…', 'info');
+        const r = await FaceID.run('verify');
+        const { data, error } = await sb.rpc('verify_my_face', { probe: JSON.stringify(r.v) });
+        if (error) throw error;
+        const row = data && data[0];
+        if (!row || !row.match_found) {
+          alert('Face match failed. Distance: ' + Number(row ? row.distance : 1).toFixed(2));
+          return false;
+        }
+        return true;
+      } catch (err) {
+        showToast('Face check error: ' + errMsg(err), 'error');
+        return false;
+      }
+    }
+
+    // --- Skip Warning ---
+    function triggerSkip2FAWarning() { hide('viewOnboarding'); show('skipWarningModal'); }
+    function cancelSkip2FAWarning() { hide('skipWarningModal'); show('viewOnboarding'); }
+
+    async function confirmPasswordOnlyMode() {
+      try {
+        await setPref('none');
+        hide('skipWarningModal');
+        completeSuccessfulLogin();
+      } catch (e) {
+        showToast(errMsg(e), 'error');
+      }
+    }
+
+    function showForgotPasswordAlert() {
+      const email = prompt('Enter your registered email address to receive a password reset link:');
+      if (email) {
+        sb.auth.resetPasswordForEmail(email.trim().toLowerCase(), { redirectTo: window.location.origin + window.location.pathname })
+          .then(() => showToast('Password reset instructions sent to ' + email, 'success'))
+          .catch((err) => showToast(errMsg(err), 'error'));
+      }
+    }
+
+    // --- Drozo Guard Mobile Mode View ---
+    function toggleGuardModeView() {
+      const el = $('viewGuardCompanion');
+      if (el.classList.contains('hidden')) {
+        ['viewStep1', 'viewOnboarding', 'wizardAuthenticator', 'authStep3Guard', 'authStep3Standard'].forEach(hide);
+        show('viewGuardCompanion');
+        startGuardPolling();
+      } else {
+        hide('viewGuardCompanion');
+        show('viewStep1');
+        if (guardPollTimer) clearInterval(guardPollTimer);
+      }
+    }
+
+    async function startGuardPolling() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get('token');
+      const details = $('guardChallengeDetails');
+
+      if (token) {
+        details.innerHTML = `Challenge ID: <span class="text-primary font-bold">${token}</span>`;
+      } else {
+        details.innerHTML = `Monitoring for latest unapproved login challenge…`;
+      }
+
+      if (guardPollTimer) clearInterval(guardPollTimer);
+      guardPollTimer = setInterval(async () => {
+        try {
+          let query = sb.from('guard_challenges').select('id,status,created_at').eq('status', 'pending').order('created_at', { ascending: false }).limit(1);
+          if (token) query = sb.from('guard_challenges').select('id,status,created_at').eq('id', token);
+          const { data } = await query;
+          if (data && data.length) {
+            const ch = data[0];
+            activeChallenge = ch.id;
+            details.innerHTML = `Sign-in challenge <strong class="text-primary">${ch.id.slice(0, 8)}</strong> requested at ${new Date(ch.created_at).toLocaleTimeString()}`;
+          }
+        } catch (_) {}
+      }, 2000);
+    }
+
+    async function respondGuardChallenge(action) {
+      if (!activeChallenge) {
+        showToast('No pending sign-in challenge found.', 'info');
+        return;
+      }
+      const { error } = await sb.from('guard_challenges').update({ status: action }).eq('id', activeChallenge);
+      if (error) {
+        showToast('Could not send response: ' + errMsg(error), 'error');
+      } else {
+        showToast(`Challenge successfully ${action}!`, action === 'authorized' ? 'success' : 'info');
+        $('guardChallengeDetails').textContent = `Request ${action}. Waiting for next challenge…`;
+      }
+    }
+
+    // ===== Drozo FaceID Implementation =====
+    const FaceID = (function () {
+      const MODEL_URLS = ['https://vladmandic.github.io/face-api/model/', 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.13/model/'];
+      let loaded = false;
+      const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+      const dist = (a, b) => { let s = 0; for (let i = 0; i < a.length; i++) { const d = a[i] - b[i]; s += d * d; } return Math.sqrt(s); };
+      const avg = (list) => list[0].map((_, i) => list.reduce((s, v) => s + v[i], 0) / list.length);
+
+      async function loadModels() {
+        if (loaded) return;
+        for (const url of MODEL_URLS) {
+          try {
+            await Promise.all([
+              faceapi.nets.tinyFaceDetector.loadFromUri(url),
+              faceapi.nets.faceLandmark68Net.loadFromUri(url),
+              faceapi.nets.faceRecognitionNet.loadFromUri(url)
+            ]);
+            loaded = true;
+            return;
+          } catch (_) {}
+        }
+        throw new Error('Face models could not be loaded. Please check internet connection.');
+      }
+
+      async function run(mode) {
+        await loadModels();
+        // Create an overlay modal dynamically if not already present
+        let ov = document.getElementById('fidModal');
+        if (!ov) {
+          ov = document.createElement('div');
+          ov.id = 'fidModal';
+          ov.className = 'fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-white text-center';
+          ov.innerHTML = `
+            <div class="w-full max-w-sm space-y-4">
+              <h3 id="fidTitle" class="text-lg font-bold">Face ID Verification</h3>
+              <div class="relative w-64 h-64 mx-auto rounded-full overflow-hidden border-4 border-primary shadow-2xl bg-black">
+                <video id="fidVideo" autoplay playsinline muted class="w-full h-full object-cover transform scale-x-[-1]"></video>
+              </div>
+              <p id="fidStatus" class="text-xs text-primary-light">Initializing camera…</p>
+              <button type="button" id="fidClose" class="py-2 px-5 bg-white/10 hover:bg-white/20 text-white rounded-full text-xs font-semibold">Cancel</button>
+            </div>
+          `;
+          document.body.appendChild(ov);
+        }
+
+        ov.classList.remove('hidden');
+        const video = document.getElementById('fidVideo');
+        const status = document.getElementById('fidStatus');
+        $('fidTitle').textContent = mode === 'enroll' ? 'Enroll Face ID' : 'Face ID Verification';
+
+        let stream = null;
+        let cancelled = false;
+
+        return new Promise(async (resolve, reject) => {
+          document.getElementById('fidClose').onclick = () => {
+            cancelled = true;
+            if (stream) stream.getTracks().forEach((t) => t.stop());
+            ov.classList.add('hidden');
+            reject(new Error('Cancelled by user'));
+          };
+
+          try {
+            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 480, height: 480 }, audio: false });
+            video.srcObject = stream;
+            status.textContent = 'Please look directly at the camera…';
+
+            const samples = [];
+            const started = Date.now();
+
+            while (!cancelled && Date.now() - started < 35000) {
+              await sleep(250);
+              const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
+              if (detection) {
+                samples.push(Array.from(detection.descriptor));
+                status.textContent = `Scanning… (${samples.length}/4 frames captured)`;
+                if (samples.length >= 4) {
+                  status.textContent = 'Face captured successfully!';
+                  await sleep(400);
+                  if (stream) stream.getTracks().forEach((t) => t.stop());
+                  ov.classList.add('hidden');
+                  if (mode === 'enroll') {
+                    resolve({ poses: [{ pose: 'front', v: avg(samples) }] });
+                  } else {
+                    resolve({ v: avg(samples) });
+                  }
+                  return;
+                }
+              }
+            }
+            if (stream) stream.getTracks().forEach((t) => t.stop());
+            ov.classList.add('hidden');
+            reject(new Error('Face scan timed out. Try again with more light.'));
+          } catch (e) {
+            if (stream) stream.getTracks().forEach((t) => t.stop());
+            ov.classList.add('hidden');
+            reject(e);
+          }
+        });
+      }
+
+      return { run: run };
+    })();
+  </script>
+</body>
+</html>
