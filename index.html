@@ -6,12 +6,14 @@
   <title>Drozo Therapy — Compassionate, Personalized Online Mental Healthcare</title>
   <meta name="description" content="Connect with licensed, vetted therapists tailored to your unique emotional needs. Confidential, flexible, and data-driven online counseling from the comfort of home.">
 
-  <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+  <!-- Google Fonts: Plus Jakarta Sans (Headings) & Inter (Body) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <!-- Tailwind CSS CDN -->
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -44,1135 +46,1708 @@
               light: '#2B3E56',
               dark: '#0F1824',
               muted: '#5C6C7E',
+            },
+            canvas: {
+              light: '#FAF7F2',
+              card: '#FFFFFF',
             }
           },
           fontFamily: {
             heading: ['"Plus Jakarta Sans"', 'sans-serif'],
             body: ['Inter', 'sans-serif'],
-            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          boxShadow: {
+            'soft': '0 10px 30px -5px rgba(27, 42, 61, 0.06), 0 4px 10px -2px rgba(27, 42, 61, 0.03)',
+            'soft-lg': '0 20px 40px -10px rgba(45, 106, 79, 0.12), 0 8px 16px -4px rgba(27, 42, 61, 0.04)',
+            'glow': '0 0 40px -10px rgba(45, 106, 79, 0.35)',
+          },
+          animation: {
+            'float': 'float 6s ease-in-out infinite',
+            'float-delayed': 'float 7s ease-in-out 2s infinite',
+            'pulse-soft': 'pulseSoft 4s ease-in-out infinite',
+            'breathe': 'breathe 8s ease-in-out infinite',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-12px)' },
+            },
+            pulseSoft: {
+              '0%, 100%': { opacity: '0.8', transform: 'scale(1)' },
+              '50%': { opacity: '1', transform: 'scale(1.04)' },
+            },
+            breathe: {
+              '0%, 100%': { transform: 'scale(1)', opacity: '0.7' },
+              '50%': { transform: 'scale(1.15)', opacity: '0.9' },
+            }
           }
         }
       }
     };
   </script>
 
-  <!-- External libraries: Config, Supabase, Face-api, Html5Qrcode -->
-  <script src="config.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-
+  <!-- Custom CSS for specialized animations, dark mode overrides, and transitions -->
   <style>
-    body { font-family: 'Inter', sans-serif; background-color: #FAF7F2; color: #1B2A3D; -webkit-font-smoothing: antialiased; }
-    h1, h2, h3, h4, h5, .font-heading { font-family: 'Plus Jakarta Sans', sans-serif; letter-spacing: -0.02em; }
-    .mono { font-family: 'JetBrains Mono', monospace; }
-    .gone { display: none !important; }
-    @keyframes breathe {
-      0%, 100% { transform: scale(0.9); opacity: 0.7; }
-      50% { transform: scale(1.15); opacity: 1; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #FAF7F2;
+      color: #1B2A3D;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
-    .animate-breathe { animation: breathe 8s ease-in-out infinite; }
+
+    h1, h2, h3, h4, h5, h6, .font-heading {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      letter-spacing: -0.02em;
+    }
+
+    /* Scroll animation classes */
+    .fade-in-section {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: opacity, transform;
+    }
+    .fade-in-section.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* FAQ accordion smooth transition */
+    .faq-answer {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .faq-answer.open {
+      grid-template-rows: 1fr;
+    }
+    .faq-answer > div {
+      overflow: hidden;
+    }
+
+    /* Carousel transition */
+    .testimonial-slide {
+      transition: opacity 0.45s ease-in-out, transform 0.45s ease-in-out;
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F5F0E8;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #2D6A4F;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #1B4332;
+    }
+
+    /* Abstract Organic Shapes & Mesh */
+    .organic-shape {
+      border-radius: 64% 36% 70% 30% / 48% 59% 41% 52%;
+    }
+    .organic-shape-2 {
+      border-radius: 42% 58% 35% 65% / 60% 32% 68% 40%;
+    }
+
+    /* Dark Mode via prefers-color-scheme */
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #0F1824;
+        color: #F8F7F4;
+      }
+      .bg-canvas-light, .bg-sand-light, .bg-sand {
+        background-color: #162231 !important;
+      }
+      .bg-white {
+        background-color: #1A283A !important;
+      }
+      .bg-sand-dark {
+        background-color: #1E3046 !important;
+      }
+      .border-sand-muted, .border-sand-dark, .border-sand {
+        border-color: #273C56 !important;
+      }
+      .border-gray-100, .border-gray-200 {
+        border-color: #273C56 !important;
+      }
+      .text-charcoal {
+        color: #F8F7F4 !important;
+      }
+      .text-charcoal-muted {
+        color: #9EAFBF !important;
+      }
+      .shadow-soft, .shadow-soft-lg {
+        box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.4) !important;
+      }
+      nav.sticky-nav {
+        background-color: rgba(15, 24, 36, 0.9) !important;
+        border-bottom-color: rgba(39, 60, 86, 0.8) !important;
+      }
+      .bg-primary-50 {
+        background-color: rgba(45, 106, 79, 0.22) !important;
+      }
+      .text-primary {
+        color: #40916C !important;
+      }
+      .text-primary-dark {
+        color: #72C09B !important;
+      }
+      ::-webkit-scrollbar-track {
+        background: #0F1824;
+      }
+    }
   </style>
 </head>
-<body class="min-h-screen flex flex-col antialiased selection:bg-primary-light selection:text-white">
+<body class="selection:bg-primary-light selection:text-white">
+
+  <!-- Accessibility Skip Link -->
+  <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 z-50 px-4 py-2 bg-primary text-white font-medium rounded-lg shadow-lg">
+    Skip to main content
+  </a>
 
   <!-- ========================================================================= -->
-  <!-- NAVIGATION BAR (Dynamic: Public vs. Logged-in Portal)                    -->
+  <!-- 1. STICKY NAVIGATION                                                      -->
   <!-- ========================================================================= -->
-  <header class="sticky top-0 z-40 bg-sand-light/90 backdrop-blur-md border-b border-sand-dark transition-all">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-      <!-- Drozo Brand Logo -->
-      <a href="index.html" class="flex items-center gap-3 group">
-        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-primary-light flex items-center justify-center text-white shadow-md shadow-primary/20 transition-transform group-hover:scale-105">
-          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 22C12 22 20 18 20 10C20 4.5 15.5 2 12 2C8.5 2 4 4.5 4 10C4 18 12 22 12 22Z" fill="rgba(255, 255, 255, 0.2)"></path>
-            <path d="M12 2V22"></path>
-          </svg>
-        </div>
-        <div class="flex flex-col">
-          <span class="font-heading font-extrabold text-2xl tracking-tight text-charcoal">Drozo</span>
-          <span class="text-[10px] font-semibold tracking-widest uppercase -mt-1 text-primary">Therapy</span>
-        </div>
-      </a>
-
-      <!-- PUBLIC NAV (Shown when logged out) -->
-      <nav id="navPublic" class="flex items-center gap-4 sm:gap-6">
-        <a href="#how" class="hidden md:inline-block text-sm font-semibold text-charcoal-muted hover:text-primary transition">How It Works</a>
-        <a href="#features" class="hidden md:inline-block text-sm font-semibold text-charcoal-muted hover:text-primary transition">What You Get</a>
-        <a href="#faq" class="hidden md:inline-block text-sm font-semibold text-charcoal-muted hover:text-primary transition">FAQ</a>
-        <a href="auth.html" class="text-sm font-bold text-primary hover:text-primary-dark transition px-4 py-2 rounded-xl hover:bg-sand">
-          Sign In
+  <header class="sticky top-0 z-40 w-full transition-all duration-300 backdrop-blur-md bg-sand-light/90 border-b border-sand-dark/60 sticky-nav" id="main-header">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20">
+        
+        <!-- Logo -->
+        <a href="#" class="flex items-center gap-2.5 group focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg" aria-label="Drozo Therapy Home">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary-light flex items-center justify-center text-white shadow-md shadow-primary/20 transition-transform duration-300 group-hover:scale-105">
+            <!-- Wellness / Leaf Icon SVG -->
+            <svg class="w-6 h-6 text-[#F8F7F4]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22C12 22 20 18 20 10C20 4.5 15.5 2 12 2C8.5 2 4 4.5 4 10C4 18 12 22 12 22Z" fill="rgba(248, 247, 244, 0.15)"></path>
+              <path d="M12 2V22"></path>
+              <path d="M12 7C9.5 8 7 10.5 7 14"></path>
+              <path d="M12 11C14.5 12 17 14.5 17 17"></path>
+            </svg>
+          </div>
+          <div class="flex flex-col">
+            <span class="font-heading font-extrabold text-2xl tracking-tight text-charcoal">Drozo</span>
+            <span class="text-[10px] font-semibold tracking-widest uppercase -mt-1 text-primary">Therapy</span>
+          </div>
         </a>
-        <button type="button" onclick="openQuiz()" class="px-5 py-2.5 rounded-full bg-primary hover:bg-primary-dark text-white font-heading font-bold text-xs sm:text-sm transition shadow-md shadow-primary/20">
-          Get Started
-        </button>
-      </nav>
 
-      <!-- PORTAL NAV (Shown when logged in) -->
-      <div id="navPortal" class="gone flex items-center gap-3">
-        <span id="navUserEmail" class="hidden md:inline-block text-xs font-mono font-bold text-charcoal bg-sand px-3 py-1.5 rounded-xl border border-sand-dark"></span>
-        <button type="button" onclick="openMyIdPassModal()" class="px-3 py-2 rounded-xl text-xs font-bold bg-white border border-sand-dark text-charcoal hover:bg-sand transition flex items-center gap-1.5 shadow-sm">
-          <span>🪪</span> <span class="hidden sm:inline">Sanctuary Pass</span>
-        </button>
-        <a id="navAdminLink" href="admin.html" class="gone px-3.5 py-2 rounded-xl text-xs font-bold bg-charcoal text-white hover:bg-charcoal-light transition shadow-sm">
-          Admin Panel →
-        </a>
-        <button type="button" onclick="openSecurityModal()" title="Security Settings" class="p-2 rounded-xl bg-white border border-sand-dark text-charcoal hover:bg-sand transition shadow-sm text-sm">
-          ⚙️
-        </button>
-        <button type="button" onclick="handleLogout()" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 transition">
-          Sign Out
-        </button>
+        <!-- Desktop Navigation Links -->
+        <nav class="hidden md:flex items-center space-x-1 lg:space-x-2" aria-label="Primary Navigation">
+          <a href="#how-it-works" class="px-3.5 py-2 text-sm font-medium text-charcoal/80 hover:text-primary transition-colors rounded-lg hover:bg-sand/60">How It Works</a>
+          <a href="#therapists" class="px-3.5 py-2 text-sm font-medium text-charcoal/80 hover:text-primary transition-colors rounded-lg hover:bg-sand/60">Specialties</a>
+          <a href="#why-drozo" class="px-3.5 py-2 text-sm font-medium text-charcoal/80 hover:text-primary transition-colors rounded-lg hover:bg-sand/60">Why Drozo</a>
+          <a href="#pricing" class="px-3.5 py-2 text-sm font-medium text-charcoal/80 hover:text-primary transition-colors rounded-lg hover:bg-sand/60">Sanctuary</a>
+          <a href="#faq" class="px-3.5 py-2 text-sm font-medium text-charcoal/80 hover:text-primary transition-colors rounded-lg hover:bg-sand/60">FAQ</a>
+        </nav>
+
+        <!-- Right Action Buttons -->
+        <div class="hidden md:flex items-center space-x-3">
+          <a id="navLoginLink" href="auth.html" class="text-sm font-semibold text-charcoal/80 hover:text-primary transition-colors px-3 py-2 rounded-lg">
+            Log In
+          </a>
+          <a id="navPortalBtn" href="auth.html?mode=signup" class="inline-flex items-center justify-center px-5 py-2.5 text-sm font-semibold text-white bg-primary hover:bg-primary-dark transition-all duration-200 rounded-full shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+            Get Matched
+            <svg class="w-4 h-4 ml-1.5 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+            </svg>
+          </a>
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <div class="flex md:hidden">
+          <button id="mobile-menu-btn" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Toggle Navigation Menu" class="p-2.5 rounded-xl text-charcoal hover:bg-sand transition-colors focus:outline-none focus:ring-2 focus:ring-primary">
+            <svg id="hamburger-icon" class="w-6 h-6 block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+            <svg id="close-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Drawer -->
+    <div id="mobile-menu" class="hidden md:hidden border-b border-sand-dark/80 bg-sand-light/95 backdrop-blur-xl px-4 pt-3 pb-6 space-y-2 transition-all duration-300">
+      <a href="#how-it-works" class="mobile-nav-link block px-4 py-2.5 text-base font-medium text-charcoal hover:text-primary hover:bg-sand/60 rounded-xl">How It Works</a>
+      <a href="#therapists" class="mobile-nav-link block px-4 py-2.5 text-base font-medium text-charcoal hover:text-primary hover:bg-sand/60 rounded-xl">Our Therapists</a>
+      <a href="#why-drozo" class="mobile-nav-link block px-4 py-2.5 text-base font-medium text-charcoal hover:text-primary hover:bg-sand/60 rounded-xl">Why Drozo</a>
+      <a href="#pricing" class="mobile-nav-link block px-4 py-2.5 text-base font-medium text-charcoal hover:text-primary hover:bg-sand/60 rounded-xl">Pricing</a>
+      <a href="#faq" class="mobile-nav-link block px-4 py-2.5 text-base font-medium text-charcoal hover:text-primary hover:bg-sand/60 rounded-xl">FAQ</a>
+      
+      <div class="pt-4 border-t border-sand-dark flex flex-col gap-3">
+        <a href="#login" class="mobile-nav-link w-full text-center py-2.5 font-semibold text-charcoal hover:text-primary rounded-xl bg-sand/40">Log In</a>
+        <a href="#matching-quiz" class="mobile-nav-link w-full text-center py-3 font-semibold text-white bg-primary hover:bg-primary-dark rounded-xl shadow-md">Get Matched Today</a>
       </div>
     </div>
   </header>
 
-  <!-- ========================================================================= -->
-  <!-- PUBLIC LANDING PAGE CONTENT (Visible when logged out)                     -->
-  <!-- ========================================================================= -->
-  <div id="landing" class="flex-grow">
+  <main id="main-content">
+    
+    <!-- ========================================================================= -->
+    <!-- 2. HERO SECTION (Split Layout with Organic Graphic & Trust Badges)         -->
+    <!-- ========================================================================= -->
+    <section class="relative overflow-hidden pt-8 pb-16 lg:pt-16 lg:pb-28">
+      <!-- Background Ambient Glows -->
+      <div class="absolute -top-32 -left-20 w-96 h-96 bg-primary-100/40 rounded-full blur-3xl pointer-events-none -z-10"></div>
+      <div class="absolute top-1/2 -right-24 w-[32rem] h-[32rem] bg-accent/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
 
-    <!-- HERO SECTION -->
-    <section class="relative overflow-hidden py-16 sm:py-24 lg:py-32">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="max-w-3xl mx-auto text-center space-y-6">
-          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-semibold">
-            <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-            Confidential, Personalized Online Mental Healthcare
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+          
+          <!-- Hero Left Column: Copy & Actions -->
+          <div class="lg:col-span-7 space-y-8 text-left fade-in-section">
+            
+            <!-- Category Tag -->
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary-50 border border-primary/15 text-primary text-xs sm:text-sm font-semibold tracking-wide">
+              <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+              Compassionate, Confidential Online Therapy
+            </div>
+
+            <!-- Headline -->
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-charcoal leading-[1.12]">
+              Your Journey to <span class="text-primary italic font-serif">Better Mental Health</span> Starts Here
+            </h1>
+
+            <!-- Subtitle -->
+            <p class="text-lg sm:text-xl text-charcoal-muted leading-relaxed max-w-2xl">
+              Experience intelligent, clinical-grade therapist matching with licensed specialists who truly understand you. Flexible virtual sessions, unlimited messaging, and evidence-based care on your own schedule.
+            </p>
+
+            <!-- CTA Row -->
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
+              <a href="#matching-quiz" class="inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-white bg-accent hover:bg-accent-hover transition-all duration-200 rounded-full shadow-lg shadow-accent/25 hover:shadow-xl hover:shadow-accent/30 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 text-center group">
+                Get Matched Today
+                <svg class="w-5 h-5 ml-2 transition-transform duration-200 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                </svg>
+              </a>
+              <a href="#how-it-works" class="inline-flex items-center justify-center px-7 py-4 text-base font-semibold text-charcoal bg-sand hover:bg-sand-dark transition-all duration-200 rounded-full border border-sand-dark/70 hover:border-sand-muted focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                See How It Works
+              </a>
+            </div>
+
+            <!-- Trust Badges Row -->
+            <div class="pt-6 border-t border-sand-dark/80 grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <!-- Trust Item 1 -->
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-primary-50 text-primary flex items-center justify-center shrink-0">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                  </svg>
+                </div>
+                <div>
+                  <h4 class="text-sm font-bold text-charcoal">HIPAA Compliant</h4>
+                  <p class="text-xs text-charcoal-muted">256-bit encrypted data</p>
+                </div>
+              </div>
+
+              <!-- Trust Item 2 -->
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-primary-50 text-primary flex items-center justify-center shrink-0">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                  </svg>
+                </div>
+                <div>
+                  <h4 class="text-sm font-bold text-charcoal">10K+ Therapists</h4>
+                  <p class="text-xs text-charcoal-muted">100% state-licensed</p>
+                </div>
+              </div>
+
+              <!-- Trust Item 3 -->
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-primary-50 text-accent flex items-center justify-center shrink-0">
+                  <svg class="w-5 h-5 fill-current" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                  </svg>
+                </div>
+                <div>
+                  <h4 class="text-sm font-bold text-charcoal">4.8★ Client Rating</h4>
+                  <p class="text-xs text-charcoal-muted">50,000+ verified reviews</p>
+                </div>
+              </div>
+            </div>
+
           </div>
-          <h1 class="font-heading text-4xl sm:text-5xl lg:text-6xl font-extrabold text-charcoal tracking-tight leading-tight">
-            Professional therapy tailored to your comfort and pace.
-          </h1>
-          <p class="text-base sm:text-lg text-charcoal-muted leading-relaxed max-w-2xl mx-auto">
-            Experience licensed, confidential care with zero guesswork. Choose your preferred session environment—secure Jitsi video or private Discord voice—guarded by hardware biometrics.
+
+          <!-- Hero Right Column: Pure CSS Calming Wellness Art & Floating UI -->
+          <div class="lg:col-span-5 relative flex items-center justify-center fade-in-section">
+            
+            <!-- Large Calming Ambient Artwork (CSS shapes & gradients) -->
+            <div class="relative w-full max-w-md aspect-square flex items-center justify-center">
+              
+              <!-- Ambient Organic Gradient Blobs -->
+              <div class="absolute inset-4 bg-gradient-to-tr from-primary/30 via-primary-light/20 to-accent/25 organic-shape animate-breathe filter blur-md"></div>
+              <div class="absolute inset-8 bg-gradient-to-br from-sand-dark via-primary-50 to-primary/20 organic-shape-2 shadow-2xl"></div>
+              
+              <!-- Calming Center Circle with Wellness Mandala SVG -->
+              <div class="relative z-10 w-44 h-44 rounded-full bg-white/90 backdrop-blur-md shadow-xl border border-sand-dark flex flex-col items-center justify-center p-4 text-center">
+                <div class="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-2">
+                  <svg class="w-8 h-8 text-primary animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="9" stroke-width="1.8"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3v18M3 12h18M6.5 6.5l11 11M6.5 17.5l11-11"/>
+                  </svg>
+                </div>
+                <span class="text-xs font-bold text-charcoal tracking-wide">Mindful Space</span>
+                <span class="text-[11px] text-primary font-medium">Breathe • Heal • Grow</span>
+              </div>
+
+              <!-- Floating Card 1: Matched Therapist -->
+              <div class="absolute -top-3 -right-2 sm:-right-4 z-20 bg-white/95 backdrop-blur-md rounded-2xl p-3.5 shadow-soft-lg border border-sand-dark/70 animate-float max-w-[230px]">
+                <div class="flex items-center gap-3">
+                  <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-primary to-primary-light flex items-center justify-center text-white font-bold text-sm shadow">
+                    ML
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-1">
+                      <span class="text-xs font-bold text-charcoal">Dr. Maya Lin</span>
+                      <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    </div>
+                    <p class="text-[11px] text-charcoal-muted">Clinical Psychologist</p>
+                    <div class="flex items-center text-[10px] text-primary font-semibold mt-0.5">
+                      <span>99% Match Score</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Floating Card 2: Upcoming Session -->
+              <div class="absolute -bottom-4 -left-2 sm:-left-6 z-20 bg-white/95 backdrop-blur-md rounded-2xl p-3.5 shadow-soft-lg border border-sand-dark/70 animate-float-delayed max-w-[240px]">
+                <div class="flex items-start gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-accent/15 text-accent flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-accent">Next Video Session</span>
+                    <h5 class="text-xs font-bold text-charcoal">Tomorrow at 10:00 AM</h5>
+                    <p class="text-[10px] text-charcoal-muted mt-0.5">Secure 1-on-1 Room Ready</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Floating Card 3: Mood Tracker -->
+              <div class="absolute top-1/2 -left-6 -translate-y-1/2 z-10 hidden sm:block bg-white/90 backdrop-blur-sm rounded-xl px-3 py-2 shadow-soft border border-sand-dark text-[11px] font-medium text-charcoal">
+                <span class="text-accent">✨</span> 94% report feeling lighter in 4 weeks
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- 3. TRUSTED BY / SOCIAL PROOF STAT BAR                                     -->
+    <!-- ========================================================================= -->
+    <section class="bg-sand border-y border-sand-dark/80 py-10 transition-colors">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 lg:gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-sand-dark">
+          
+          <!-- Stat 1 -->
+          <div class="pt-4 md:pt-0">
+            <p class="font-heading text-3xl sm:text-4xl font-extrabold text-primary">1,250,000+</p>
+            <p class="text-xs sm:text-sm font-medium text-charcoal-muted mt-1 uppercase tracking-wider">Sessions Completed</p>
+          </div>
+
+          <!-- Stat 2 -->
+          <div class="pt-4 md:pt-0">
+            <p class="font-heading text-3xl sm:text-4xl font-extrabold text-primary">50+</p>
+            <p class="text-xs sm:text-sm font-medium text-charcoal-muted mt-1 uppercase tracking-wider">Clinical Specialties</p>
+          </div>
+
+          <!-- Stat 3 -->
+          <div class="pt-4 md:pt-0">
+            <p class="font-heading text-3xl sm:text-4xl font-extrabold text-primary">4.8 / 5.0</p>
+            <p class="text-xs sm:text-sm font-medium text-charcoal-muted mt-1 uppercase tracking-wider">Avg Therapist Rating</p>
+          </div>
+
+          <!-- Stat 4 -->
+          <div class="pt-4 md:pt-0">
+            <p class="font-heading text-3xl sm:text-4xl font-extrabold text-primary">98%</p>
+            <p class="text-xs sm:text-sm font-medium text-charcoal-muted mt-1 uppercase tracking-wider">Match Satisfaction</p>
+          </div>
+
+        </div>
+
+        <!-- Press / Authority mentions -->
+        <div class="mt-8 pt-8 border-t border-sand-dark flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs sm:text-sm font-semibold text-charcoal-muted/70 tracking-wider uppercase">
+          <span>Featured in:</span>
+          <span class="hover:text-charcoal transition-colors">MindWell Journal</span>
+          <span>•</span>
+          <span class="hover:text-charcoal transition-colors">Clinical Tech Today</span>
+          <span>•</span>
+          <span class="hover:text-charcoal transition-colors">Wellness Forward</span>
+          <span>•</span>
+          <span class="hover:text-charcoal transition-colors">American Mental Health Review</span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- 4. HOW IT WORKS (3 Step Cards with Progressive Layout)                     -->
+    <!-- ========================================================================= -->
+    <section id="how-it-works" class="py-20 lg:py-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto mb-16 fade-in-section">
+        <span class="text-xs font-bold uppercase tracking-widest text-primary bg-primary-50 px-3.5 py-1.5 rounded-full border border-primary/15">Simple 3-Step Process</span>
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-charcoal mt-4 mb-4">
+          A Gentle, Guided Path to Getting the Support You Deserve
+        </h2>
+        <p class="text-charcoal-muted text-base sm:text-lg leading-relaxed">
+          No waiting lists. No awkward phone calls. We make starting therapy simple, dignified, and completely personalized.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+        
+        <!-- Step 1 Card -->
+        <div class="group bg-white rounded-3xl p-8 border border-sand-dark/70 shadow-soft hover:shadow-soft-lg hover:-translate-y-1.5 transition-all duration-300 relative flex flex-col justify-between fade-in-section">
+          <div>
+            <div class="flex items-center justify-between mb-8">
+              <div class="w-14 h-14 rounded-2xl bg-primary-50 text-primary flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+                <!-- Assessment Icon SVG -->
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                </svg>
+              </div>
+              <span class="text-3xl font-extrabold font-heading text-sand-muted group-hover:text-primary/40 transition-colors">01</span>
+            </div>
+
+            <h3 class="text-xl font-bold text-charcoal mb-3 group-hover:text-primary transition-colors">
+              Take a Brief Assessment
+            </h3>
+            <p class="text-charcoal-muted text-sm leading-relaxed mb-6">
+              Answer a few confidential questions about your challenges, therapy preferences, background, and what you hope to achieve. Takes under 3 minutes.
+            </p>
+          </div>
+
+          <div class="pt-4 border-t border-sand flex items-center text-xs font-semibold text-primary">
+            <span>Confidential & HIPAA Protected</span>
+            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Step 2 Card -->
+        <div class="group bg-white rounded-3xl p-8 border border-sand-dark/70 shadow-soft hover:shadow-soft-lg hover:-translate-y-1.5 transition-all duration-300 relative flex flex-col justify-between fade-in-section">
+          <div>
+            <div class="flex items-center justify-between mb-8">
+              <div class="w-14 h-14 rounded-2xl bg-accent-light text-accent flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+                <!-- Matching Algorithm Icon SVG -->
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                </svg>
+              </div>
+              <span class="text-3xl font-extrabold font-heading text-sand-muted group-hover:text-accent/40 transition-colors">02</span>
+            </div>
+
+            <h3 class="text-xl font-bold text-charcoal mb-3 group-hover:text-accent transition-colors">
+              Get Matched with a Therapist
+            </h3>
+            <p class="text-charcoal-muted text-sm leading-relaxed mb-6">
+              Our clinical algorithm pairs you with a vetted, state-licensed professional tailored to your unique goals. You can easily switch anytime for free.
+            </p>
+          </div>
+
+          <div class="pt-4 border-t border-sand flex items-center text-xs font-semibold text-accent">
+            <span>Usually matched within 24 hours</span>
+            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Step 3 Card -->
+        <div class="group bg-white rounded-3xl p-8 border border-sand-dark/70 shadow-soft hover:shadow-soft-lg hover:-translate-y-1.5 transition-all duration-300 relative flex flex-col justify-between fade-in-section">
+          <div>
+            <div class="flex items-center justify-between mb-8">
+              <div class="w-14 h-14 rounded-2xl bg-primary-50 text-primary flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+                <!-- Journey / Healing Icon SVG -->
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+              </div>
+              <span class="text-3xl font-extrabold font-heading text-sand-muted group-hover:text-primary/40 transition-colors">03</span>
+            </div>
+
+            <h3 class="text-xl font-bold text-charcoal mb-3 group-hover:text-primary transition-colors">
+              Start Your Journey
+            </h3>
+            <p class="text-charcoal-muted text-sm leading-relaxed mb-6">
+              Begin communicating via encrypted video, voice calls, or asynchronous messaging on your schedule, wherever you feel most relaxed and safe.
+            </p>
+          </div>
+
+          <div class="pt-4 border-t border-sand flex items-center text-xs font-semibold text-primary">
+            <span>Video, Audio, or Text sessions</span>
+            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- 5. WHY DROZO (Feature Grid with Rich SVG Icons)                           -->
+    <!-- ========================================================================= -->
+    <section id="why-drozo" class="bg-sand/60 py-20 lg:py-28 border-y border-sand-dark/70 transition-colors">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="text-center max-w-3xl mx-auto mb-16 fade-in-section">
+          <span class="text-xs font-bold uppercase tracking-widest text-primary bg-primary-50 px-3.5 py-1.5 rounded-full border border-primary/15">The Drozo Advantage</span>
+          <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-charcoal mt-4 mb-4">
+            Designed for Real Life, Grounded in Real Science
+          </h2>
+          <p class="text-charcoal-muted text-base sm:text-lg">
+            We built Drozo to eliminate the friction, stigma, and astronomical costs that prevent people from receiving high quality mental health care.
           </p>
-          <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <button type="button" onclick="openQuiz()" class="w-full sm:w-auto px-8 py-4 rounded-full bg-primary hover:bg-primary-dark text-white font-heading font-extrabold text-base transition shadow-xl shadow-primary/25">
-              Take the 1-Minute Intake Assessment →
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
+          
+          <!-- Feature 1: Licensed Professionals -->
+          <div class="bg-white rounded-3xl p-8 sm:p-10 border border-sand-dark/80 shadow-soft hover:shadow-soft-lg transition-all duration-300 flex items-start gap-6 fade-in-section">
+            <div class="w-16 h-16 rounded-2xl bg-primary-50 text-primary flex items-center justify-center shrink-0">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-charcoal mb-2">Licensed & Rigorously Vetted</h3>
+              <p class="text-charcoal-muted text-sm sm:text-base leading-relaxed">
+                Every therapist on Drozo is an accredited Psychologist (PsyD/PhD), Licensed Marriage & Family Therapist (LMFT), or Clinical Social Worker (LCSW) with a minimum of 3 years and 1,000+ clinical hours.
+              </p>
+              <ul class="mt-4 space-y-1.5 text-xs text-charcoal font-medium">
+                <li class="flex items-center gap-2"><span class="text-primary font-bold">✓</span> Full background checks & state credential verification</li>
+                <li class="flex items-center gap-2"><span class="text-primary font-bold">✓</span> Continuous clinical peer-review monitoring</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Feature 2: Flexible Scheduling -->
+          <div class="bg-white rounded-3xl p-8 sm:p-10 border border-sand-dark/80 shadow-soft hover:shadow-soft-lg transition-all duration-300 flex items-start gap-6 fade-in-section">
+            <div class="w-16 h-16 rounded-2xl bg-accent-light text-accent flex items-center justify-center shrink-0">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-charcoal mb-2">Ultimate Flexibility</h3>
+              <p class="text-charcoal-muted text-sm sm:text-base leading-relaxed">
+                Forget rigid office hours or traffic jams. Schedule video calls in the morning, audio calls on your lunch break, or leave asynchronous voice memos whenever you experience a tough moment.
+              </p>
+              <ul class="mt-4 space-y-1.5 text-xs text-charcoal font-medium">
+                <li class="flex items-center gap-2"><span class="text-accent font-bold">✓</span> Morning, evening, and weekend slots available</li>
+                <li class="flex items-center gap-2"><span class="text-accent font-bold">✓</span> Unlimited messaging room open 24/7</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Feature 3: Affordable Plans -->
+          <div class="bg-white rounded-3xl p-8 sm:p-10 border border-sand-dark/80 shadow-soft hover:shadow-soft-lg transition-all duration-300 flex items-start gap-6 fade-in-section">
+            <div class="w-16 h-16 rounded-2xl bg-primary-50 text-primary flex items-center justify-center shrink-0">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-charcoal mb-2">Transparent, Fair Pricing</h3>
+              <p class="text-charcoal-muted text-sm sm:text-base leading-relaxed">
+                Traditional therapy often runs $150–$300 per session out-of-pocket. Drozo plans start at just $49/week, offering up to 60% savings, with HSA/FSA eligibility and no hidden fees.
+              </p>
+              <ul class="mt-4 space-y-1.5 text-xs text-charcoal font-medium">
+                <li class="flex items-center gap-2"><span class="text-primary font-bold">✓</span> Cancel or pause your membership anytime online</li>
+                <li class="flex items-center gap-2"><span class="text-primary font-bold">✓</span> HSA / FSA card acceptance for tax-free savings</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Feature 4: Secure & Confidential -->
+          <div class="bg-white rounded-3xl p-8 sm:p-10 border border-sand-dark/80 shadow-soft hover:shadow-soft-lg transition-all duration-300 flex items-start gap-6 fade-in-section">
+            <div class="w-16 h-16 rounded-2xl bg-accent-light text-accent flex items-center justify-center shrink-0">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-charcoal mb-2">Bank-Grade Confidentiality</h3>
+              <p class="text-charcoal-muted text-sm sm:text-base leading-relaxed">
+                Your vulnerability deserves sacred privacy. Our platform exceeds industry standards with end-to-end 256-bit encryption, strict HIPAA compliance, and nickname-only confidentiality modes.
+              </p>
+              <ul class="mt-4 space-y-1.5 text-xs text-charcoal font-medium">
+                <li class="flex items-center gap-2"><span class="text-accent font-bold">✓</span> We never sell, monetize, or share your data</li>
+                <li class="flex items-center gap-2"><span class="text-accent font-bold">✓</span> Full control to erase session logs whenever you choose</li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- 6. THERAPIST SHOWCASE (Profile Cards with CSS Avatars & Tags)              -->
+    <!-- ========================================================================= -->
+    <section id="therapists" class="py-20 lg:py-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 fade-in-section">
+        <div class="max-w-2xl">
+          <span class="text-xs font-bold uppercase tracking-widest text-primary bg-primary-50 px-3.5 py-1.5 rounded-full border border-primary/15">Clinical Specializations</span>
+          <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-charcoal mt-4 mb-3">
+            Evidence-Based Care Tailored to Your Growth
+          </h2>
+          <p class="text-charcoal-muted text-base sm:text-lg">
+            Our licensed practitioners utilize clinically validated frameworks designed for sustainable emotional balance.
+          </p>
+        </div>
+        <div class="mt-6 md:mt-0">
+          <a href="#matching-quiz" class="inline-flex items-center font-semibold text-primary hover:text-primary-dark transition-colors text-sm group">
+            Start matching intake
+            <svg class="w-4 h-4 ml-1.5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        
+        <!-- Clinical Specialty 1 -->
+        <article class="bg-white rounded-3xl p-6 sm:p-8 border border-sand-dark/70 shadow-soft hover:shadow-soft-lg hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between fade-in-section">
+          <div>
+            <div class="flex items-center gap-4 mb-6">
+              <div class="w-14 h-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center text-2xl font-bold font-heading shadow-sm">
+                🧠
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-charcoal">Cognitive Reframing (CBT)</h3>
+                <p class="text-xs font-medium text-charcoal-muted">Evidence-Based Modality</p>
+                <div class="flex items-center gap-1.5 mt-1 text-xs">
+                  <span class="text-primary font-bold">Clinical Grade</span>
+                </div>
+              </div>
+            </div>
+
+            <p class="text-charcoal-muted text-sm leading-relaxed mb-6">
+              Identify and deconstruct automatic negative cognitive spirals. Learn structured thought challenging and proactive behavioral activation to reclaim daily peace of mind.
+            </p>
+
+            <div class="space-y-2 mb-6">
+              <span class="text-xs font-semibold text-charcoal-muted uppercase tracking-wider block">Key Focus Areas:</span>
+              <div class="flex flex-wrap gap-2">
+                <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-sand text-charcoal">Thought Challenging</span>
+                <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-sand text-charcoal">Panic Management</span>
+                <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-sand text-charcoal">Behavioral Tasks</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-sand flex items-center justify-between">
+            <span class="text-xs text-primary font-semibold bg-primary-50 px-2.5 py-1 rounded-lg">Available via Jitsi & Discord</span>
+            <a href="auth.html" class="text-xs font-bold text-primary hover:text-primary-dark transition-colors inline-flex items-center">
+              Request Care →
+            </a>
+          </div>
+        </article>
+
+        <!-- Clinical Specialty 2 -->
+        <article class="bg-white rounded-3xl p-6 sm:p-8 border border-sand-dark/70 shadow-soft hover:shadow-soft-lg hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between fade-in-section">
+          <div>
+            <div class="flex items-center gap-4 mb-6">
+              <div class="w-14 h-14 rounded-2xl bg-accent/15 text-accent flex items-center justify-center text-2xl font-bold font-heading shadow-sm">
+                🌿
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-charcoal">Autonomic & Stress Regulation</h3>
+                <p class="text-xs font-medium text-charcoal-muted">Nervous System Stabilization</p>
+                <div class="flex items-center gap-1.5 mt-1 text-xs">
+                  <span class="text-accent font-bold">Somatic Focus</span>
+                </div>
+              </div>
+            </div>
+
+            <p class="text-charcoal-muted text-sm leading-relaxed mb-6">
+              Address physiological signs of burnout, sensory fatigue, and prolonged autonomic stress through polyvagal grounding, 4-7-8 breathwork, and progressive somatic unwinding.
+            </p>
+
+            <div class="space-y-2 mb-6">
+              <span class="text-xs font-semibold text-charcoal-muted uppercase tracking-wider block">Key Focus Areas:</span>
+              <div class="flex flex-wrap gap-2">
+                <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-sand text-charcoal">Nervous System Care</span>
+                <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-sand text-charcoal">Burnout Recovery</span>
+                <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-sand text-charcoal">Breath Grounding</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-sand flex items-center justify-between">
+            <span class="text-xs text-primary font-semibold bg-primary-50 px-2.5 py-1 rounded-lg">Available via Jitsi & Discord</span>
+            <a href="auth.html" class="text-xs font-bold text-primary hover:text-primary-dark transition-colors inline-flex items-center">
+              Request Care →
+            </a>
+          </div>
+        </article>
+
+        <!-- Clinical Specialty 3 -->
+        <article class="bg-white rounded-3xl p-6 sm:p-8 border border-sand-dark/70 shadow-soft hover:shadow-soft-lg hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between fade-in-section">
+          <div>
+            <div class="flex items-center gap-4 mb-6">
+              <div class="w-14 h-14 rounded-2xl bg-primary-light/20 text-primary-dark flex items-center justify-center text-2xl font-bold font-heading shadow-sm">
+                🌱
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-charcoal">Mindfulness & Sleep Hygiene</h3>
+                <p class="text-xs font-medium text-charcoal-muted">Restorative Behavioral Health</p>
+                <div class="flex items-center gap-1.5 mt-1 text-xs">
+                  <span class="text-primary font-bold">Long-Term Resilience</span>
+                </div>
+              </div>
+            </div>
+
+            <p class="text-charcoal-muted text-sm leading-relaxed mb-6">
+              Develop compassionate sleep hygiene architectures and evening decompression rituals to stop nocturnal ruminations and rebuild energetic cognitive bandwidth.
+            </p>
+
+            <div class="space-y-2 mb-6">
+              <span class="text-xs font-semibold text-charcoal-muted uppercase tracking-wider block">Key Focus Areas:</span>
+              <div class="flex flex-wrap gap-2">
+                <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-sand text-charcoal">Insomnia Regulation</span>
+                <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-sand text-charcoal">Evening Decompression</span>
+                <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-sand text-charcoal">Mindful Presence</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-sand flex items-center justify-between">
+            <span class="text-xs text-primary font-semibold bg-primary-50 px-2.5 py-1 rounded-lg">Available via Jitsi & Discord</span>
+            <a href="auth.html" class="text-xs font-bold text-primary hover:text-primary-dark transition-colors inline-flex items-center">
+              Request Care →
+            </a>
+          </div>
+        </article>
+
+      </div>
+
+    </section>
+
+    <!-- Therapist Preview Modal (Interactive) -->
+    <div id="therapist-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-charcoal/60 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="modal-therapist-name">
+      <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-sand-dark relative animate-in fade-in duration-200">
+        <button onclick="closeTherapistModal()" aria-label="Close details" class="absolute top-5 right-5 text-charcoal-muted hover:text-charcoal p-1.5 rounded-full hover:bg-sand transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+        <div class="flex items-center gap-4 mb-4">
+          <div id="modal-avatar" class="w-14 h-14 rounded-2xl bg-primary text-white flex items-center justify-center font-bold text-lg"></div>
+          <div>
+            <h3 id="modal-therapist-name" class="text-xl font-bold text-charcoal"></h3>
+            <p id="modal-therapist-title" class="text-xs font-semibold text-primary"></p>
+            <p id="modal-therapist-exp" class="text-xs text-charcoal-muted"></p>
+          </div>
+        </div>
+        <div class="p-4 bg-sand rounded-2xl mb-4 text-sm text-charcoal leading-relaxed" id="modal-therapist-desc"></div>
+        <div class="flex items-center gap-3">
+          <a href="#matching-quiz" onclick="closeTherapistModal()" class="flex-1 py-3 text-center text-sm font-semibold text-white bg-primary hover:bg-primary-dark rounded-xl shadow-md transition-colors">
+            Request Match With Therapist
+          </a>
+          <button onclick="closeTherapistModal()" class="px-5 py-3 text-sm font-semibold text-charcoal bg-sand-dark/60 hover:bg-sand-dark rounded-xl transition-colors">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- 7. TESTIMONIALS (Interactive Carousel with Auto-Rotation & Controls)       -->
+    <!-- ========================================================================= -->
+    <section class="bg-sand/70 py-20 lg:py-28 border-y border-sand-dark/80 transition-colors" id="testimonials">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="text-center max-w-3xl mx-auto mb-14 fade-in-section">
+          <span class="text-xs font-bold uppercase tracking-widest text-primary bg-primary-50 px-3.5 py-1.5 rounded-full border border-primary/15">Transformational Stories</span>
+          <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-charcoal mt-4 mb-4">
+            Real Stories of Healing & Reclaimed Joy
+          </h2>
+          <p class="text-charcoal-muted text-base sm:text-lg">
+            Hear directly from clients who turned their lives around through consistent virtual care on Drozo.
+          </p>
+        </div>
+
+        <!-- Carousel Container -->
+        <div class="relative max-w-4xl mx-auto fade-in-section" id="testimonial-carousel">
+          
+          <!-- Slide Wrapper -->
+          <div class="relative min-h-[320px] sm:min-h-[260px] flex items-center justify-center">
+            
+            <!-- Slide 1 -->
+            <div class="testimonial-slide absolute inset-0 opacity-100 transition-all duration-500 flex flex-col justify-between bg-white rounded-3xl p-8 sm:p-12 shadow-soft border border-sand-dark/60" data-index="0">
+              <div>
+                <!-- Stars & Quote Icon -->
+                <div class="flex items-center justify-between mb-6">
+                  <div class="flex text-amber-500 gap-1 text-sm">
+                    ★★★★★
+                  </div>
+                  <svg class="w-10 h-10 text-primary-100" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
+                  </svg>
+                </div>
+                <blockquote class="text-lg sm:text-xl text-charcoal leading-relaxed italic mb-6">
+                  "Finding Dr. Maya on Drozo changed everything. Within three months, I felt grounded again after years of debilitating panic attacks. The virtual sessions make it so easy to stay consistent, even during my busiest weeks."
+                </blockquote>
+              </div>
+              <div class="flex items-center gap-3 pt-4 border-t border-sand">
+                <div class="w-10 h-10 rounded-full bg-primary-50 text-primary font-bold flex items-center justify-center text-sm">SK</div>
+                <div>
+                  <h4 class="font-bold text-sm text-charcoal">Sarah K.</h4>
+                  <p class="text-xs text-charcoal-muted">Graphic Designer • Chicago, IL (8 months on Drozo)</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Slide 2 -->
+            <div class="testimonial-slide absolute inset-0 opacity-0 pointer-events-none transition-all duration-500 flex flex-col justify-between bg-white rounded-3xl p-8 sm:p-12 shadow-soft border border-sand-dark/60" data-index="1">
+              <div>
+                <div class="flex items-center justify-between mb-6">
+                  <div class="flex text-amber-500 gap-1 text-sm">
+                    ★★★★★
+                  </div>
+                  <svg class="w-10 h-10 text-primary-100" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
+                  </svg>
+                </div>
+                <blockquote class="text-lg sm:text-xl text-charcoal leading-relaxed italic mb-6">
+                  "As someone with an intense tech job, traditional clinic appointments were impossible. Drozo's flexible messaging and evening video calls gave me a lifeline during a major burnout crisis. My counselor is simply world-class."
+                </blockquote>
+              </div>
+              <div class="flex items-center gap-3 pt-4 border-t border-sand">
+                <div class="w-10 h-10 rounded-full bg-accent-light text-accent font-bold flex items-center justify-center text-sm">DT</div>
+                <div>
+                  <h4 class="font-bold text-sm text-charcoal">David T.</h4>
+                  <p class="text-xs text-charcoal-muted">Software Engineer • Seattle, WA (1 year on Drozo)</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Slide 3 -->
+            <div class="testimonial-slide absolute inset-0 opacity-0 pointer-events-none transition-all duration-500 flex flex-col justify-between bg-white rounded-3xl p-8 sm:p-12 shadow-soft border border-sand-dark/60" data-index="2">
+              <div>
+                <div class="flex items-center justify-between mb-6">
+                  <div class="flex text-amber-500 gap-1 text-sm">
+                    ★★★★★
+                  </div>
+                  <svg class="w-10 h-10 text-primary-100" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
+                  </svg>
+                </div>
+                <blockquote class="text-lg sm:text-xl text-charcoal leading-relaxed italic mb-6">
+                  "The matching questionnaire felt like it looked into my soul. For the first time, I have a therapist who understands my cultural background and specific relationship hurdles. I feel seen, validated, and genuinely empowered."
+                </blockquote>
+              </div>
+              <div class="flex items-center gap-3 pt-4 border-t border-sand">
+                <div class="w-10 h-10 rounded-full bg-primary-100 text-primary-dark font-bold flex items-center justify-center text-sm">AN</div>
+                <div>
+                  <h4 class="font-bold text-sm text-charcoal">Amara N.</h4>
+                  <p class="text-xs text-charcoal-muted">Non-profit Director • Austin, TX (6 months on Drozo)</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Controls: Prev, Next, & Dots -->
+          <div class="flex items-center justify-between mt-8">
+            <button id="carousel-prev" aria-label="Previous testimonial" class="w-11 h-11 rounded-full bg-white border border-sand-dark flex items-center justify-center text-charcoal hover:text-primary hover:border-primary transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-primary">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
             </button>
-            <a href="auth.html" class="w-full sm:w-auto px-8 py-4 rounded-full bg-white hover:bg-sand border border-sand-dark text-charcoal font-heading font-bold text-base transition shadow-sm text-center">
-              Sign In to Sanctuary
+
+            <!-- Dots -->
+            <div class="flex items-center gap-2.5" id="carousel-dots">
+              <button aria-label="Go to slide 1" class="w-3 h-3 rounded-full bg-primary transition-all duration-300 w-8" data-dot="0"></button>
+              <button aria-label="Go to slide 2" class="w-3 h-3 rounded-full bg-sand-muted hover:bg-primary/50 transition-all duration-300" data-dot="1"></button>
+              <button aria-label="Go to slide 3" class="w-3 h-3 rounded-full bg-sand-muted hover:bg-primary/50 transition-all duration-300" data-dot="2"></button>
+            </div>
+
+            <button id="carousel-next" aria-label="Next testimonial" class="w-11 h-11 rounded-full bg-white border border-sand-dark flex items-center justify-center text-charcoal hover:text-primary hover:border-primary transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-primary">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- 8. PRICING SECTION (3 Tiers with Interactive Weekly/Monthly Switcher)       -->
+    <!-- ========================================================================= -->
+    <section id="pricing" class="py-20 lg:py-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto mb-12 fade-in-section">
+        <span class="text-xs font-bold uppercase tracking-widest text-primary bg-primary-50 px-3.5 py-1.5 rounded-full border border-primary/15">Accessible Investment</span>
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-charcoal mt-4 mb-4">
+          Honest, Transparent Pricing with Zero Hidden Fees
+        </h2>
+        <p class="text-charcoal-muted text-base sm:text-lg">
+          Prioritizing your mental health should never strain your finances. Choose the plan that matches your care rhythm.
+        </p>
+
+        <!-- Billing Period Toggle -->
+        <div class="mt-8 inline-flex items-center bg-sand p-1.5 rounded-full border border-sand-dark shadow-inner">
+          <button id="billing-weekly-btn" type="button" class="px-5 py-2 text-xs sm:text-sm font-bold rounded-full bg-primary text-white shadow-sm transition-all duration-200">
+            Billed Weekly
+          </button>
+          <button id="billing-monthly-btn" type="button" class="px-5 py-2 text-xs sm:text-sm font-semibold rounded-full text-charcoal hover:text-primary transition-all duration-200 flex items-center gap-1.5">
+            Billed Monthly
+            <span class="text-[10px] font-extrabold bg-accent/15 text-accent px-2 py-0.5 rounded-full uppercase tracking-wider">Save 15%</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Pricing Cards Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
+        
+        <!-- Tier 1: Basic Plan -->
+        <div class="bg-white rounded-3xl p-8 border border-sand-dark/80 shadow-soft hover:shadow-soft-lg transition-all duration-300 flex flex-col justify-between fade-in-section">
+          <div>
+            <div class="mb-6">
+              <span class="text-xs font-bold uppercase tracking-wider text-charcoal-muted">Basic Care</span>
+              <h3 class="text-2xl font-bold text-charcoal mt-1">Reflect & Message</h3>
+              <p class="text-xs text-charcoal-muted mt-2">Ideal for lightweight check-ins, asynchronous advice, and self-guided reflection.</p>
+            </div>
+
+            <!-- Price -->
+            <div class="mb-6 pb-6 border-b border-sand">
+              <div class="flex items-baseline gap-1">
+                <span class="text-4xl sm:text-5xl font-extrabold text-charcoal price-val" data-weekly="49" data-monthly="169">$49</span>
+                <span class="text-sm font-semibold text-charcoal-muted billing-label">/ week</span>
+              </div>
+              <p class="text-xs text-charcoal-muted mt-1 billing-subtext">Billed weekly. Cancel anytime.</p>
+            </div>
+
+            <!-- Features List -->
+            <ul class="space-y-3.5 mb-8 text-sm text-charcoal">
+              <li class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-primary shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 13l4 4L19 7"/></svg>
+                <span>Dedicated licensed therapist</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-primary shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 13l4 4L19 7"/></svg>
+                <span>Unlimited asynchronous messaging</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-primary shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 13l4 4L19 7"/></svg>
+                <span>Therapist reply at least 1x daily</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-primary shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 13l4 4L19 7"/></svg>
+                <span>Interactive mood journal & worksheets</span>
+              </li>
+              <li class="flex items-start gap-3 text-charcoal-muted/60">
+                <svg class="w-5 h-5 text-gray-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                <span class="line-through">Live video / audio sessions</span>
+              </li>
+            </ul>
+          </div>
+
+          <a href="#matching-quiz" class="block w-full py-3.5 px-6 text-center text-sm font-semibold rounded-2xl bg-sand hover:bg-sand-dark text-charcoal border border-sand-dark transition-all duration-200">
+            Choose Basic
+          </a>
+        </div>
+
+        <!-- Tier 2: Standard Plan (RECOMMENDED) -->
+        <div class="bg-white rounded-3xl p-8 border-2 border-primary shadow-soft-lg relative flex flex-col justify-between -translate-y-2 lg:-translate-y-4 fade-in-section">
+          
+          <!-- Recommended Badge -->
+          <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-white text-xs font-extrabold uppercase tracking-widest px-4 py-1.5 rounded-full shadow-md">
+            Most Popular
+          </div>
+
+          <div>
+            <div class="mb-6 mt-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-primary">Standard Care</span>
+              <h3 class="text-2xl font-bold text-charcoal mt-1">Live Therapy & Chat</h3>
+              <p class="text-xs text-charcoal-muted mt-2">The optimal combination of weekly live face-to-face sessions and ongoing messaging.</p>
+            </div>
+
+            <!-- Price -->
+            <div class="mb-6 pb-6 border-b border-sand">
+              <div class="flex items-baseline gap-1">
+                <span class="text-4xl sm:text-5xl font-extrabold text-primary price-val" data-weekly="69" data-monthly="239">$69</span>
+                <span class="text-sm font-semibold text-charcoal-muted billing-label">/ week</span>
+              </div>
+              <p class="text-xs text-charcoal-muted mt-1 billing-subtext">Billed weekly. Cancel anytime.</p>
+            </div>
+
+            <!-- Features List -->
+            <ul class="space-y-3.5 mb-8 text-sm text-charcoal">
+              <li class="flex items-start gap-3 font-semibold text-primary">
+                <svg class="w-5 h-5 text-primary shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                <span>1 Live 45-min Video or Audio session/week</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-primary shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 13l4 4L19 7"/></svg>
+                <span>Unlimited 24/7 asynchronous messaging</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-primary shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 13l4 4L19 7"/></svg>
+                <span>Personalized clinical growth plan</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-primary shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 13l4 4L19 7"/></svg>
+                <span>Free therapist switching guarantee</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-primary shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 13l4 4L19 7"/></svg>
+                <span>HSA / FSA card eligible</span>
+              </li>
+            </ul>
+          </div>
+
+          <a href="#matching-quiz" class="block w-full py-4 px-6 text-center text-sm font-bold rounded-2xl bg-primary hover:bg-primary-dark text-white shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-200">
+            Get Matched with Standard
+          </a>
+        </div>
+
+        <!-- Tier 3: Premium Plan -->
+        <div class="bg-white rounded-3xl p-8 border border-sand-dark/80 shadow-soft hover:shadow-soft-lg transition-all duration-300 flex flex-col justify-between fade-in-section">
+          <div>
+            <div class="mb-6">
+              <span class="text-xs font-bold uppercase tracking-wider text-charcoal-muted">Comprehensive</span>
+              <h3 class="text-2xl font-bold text-charcoal mt-1">Accelerated Care</h3>
+              <p class="text-xs text-charcoal-muted mt-2">Intensive support with bi-weekly live sessions and priority counselor responses.</p>
+            </div>
+
+            <!-- Price -->
+            <div class="mb-6 pb-6 border-b border-sand">
+              <div class="flex items-baseline gap-1">
+                <span class="text-4xl sm:text-5xl font-extrabold text-charcoal price-val" data-weekly="89" data-monthly="309">$89</span>
+                <span class="text-sm font-semibold text-charcoal-muted billing-label">/ week</span>
+              </div>
+              <p class="text-xs text-charcoal-muted mt-1 billing-subtext">Billed weekly. Cancel anytime.</p>
+            </div>
+
+            <!-- Features List -->
+            <ul class="space-y-3.5 mb-8 text-sm text-charcoal">
+              <li class="flex items-start gap-3 font-semibold text-charcoal">
+                <svg class="w-5 h-5 text-primary shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 13l4 4L19 7"/></svg>
+                <span>2 Live 45-min Video or Audio sessions/week</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-primary shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 13l4 4L19 7"/></svg>
+                <span>Priority therapist messaging responses</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-primary shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 13l4 4L19 7"/></svg>
+                <span>Complete guided cognitive toolkit</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-primary shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 13l4 4L19 7"/></svg>
+                <span>Couples / partner session add-on included</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-primary shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 13l4 4L19 7"/></svg>
+                <span>Direct concierge support hotline</span>
+              </li>
+            </ul>
+          </div>
+
+          <a href="#matching-quiz" class="block w-full py-3.5 px-6 text-center text-sm font-semibold rounded-2xl bg-sand hover:bg-sand-dark text-charcoal border border-sand-dark transition-all duration-200">
+            Choose Premium
+          </a>
+        </div>
+
+      </div>
+
+      <!-- Financial Aid & Reassurance Banner -->
+      <div class="mt-12 bg-sand-light rounded-2xl p-6 border border-sand-dark flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-primary-50 text-primary flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <p class="text-xs sm:text-sm text-charcoal">
+            <strong>Experiencing financial hardship or a student?</strong> We offer income-based reduced tuition assistance up to 40% off.
+          </p>
+        </div>
+        <a href="#aid" class="text-xs font-bold text-primary hover:text-primary-dark underline whitespace-nowrap">Apply for Financial Aid</a>
+      </div>
+
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- 9. FAQ ACCORDION (6 Common Questions with Smooth JS Expansion)            -->
+    <!-- ========================================================================= -->
+    <section id="faq" class="bg-sand/60 py-20 lg:py-28 border-y border-sand-dark/80 transition-colors">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="text-center max-w-2xl mx-auto mb-16 fade-in-section">
+          <span class="text-xs font-bold uppercase tracking-widest text-primary bg-primary-50 px-3.5 py-1.5 rounded-full border border-primary/15">Got Questions?</span>
+          <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-charcoal mt-4 mb-4">
+            Frequently Asked Questions
+          </h2>
+          <p class="text-charcoal-muted text-base sm:text-lg">
+            Everything you need to know about our matching process, therapist qualifications, and privacy.
+          </p>
+        </div>
+
+        <!-- Accordion Container -->
+        <div class="space-y-4 fade-in-section" id="faq-accordion">
+          
+          <!-- Item 1 -->
+          <div class="bg-white rounded-2xl border border-sand-dark/80 overflow-hidden shadow-soft transition-all duration-200">
+            <button type="button" class="faq-toggle w-full px-6 py-5 text-left flex items-center justify-between gap-4 focus:outline-none focus:ring-2 focus:ring-primary rounded-2xl" aria-expanded="false">
+              <span class="text-base sm:text-lg font-bold text-charcoal">How does the therapist matching process actually work?</span>
+              <span class="w-8 h-8 rounded-full bg-sand flex items-center justify-center shrink-0 text-charcoal transition-transform duration-300 faq-icon">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+              </span>
+            </button>
+            <div class="faq-answer">
+              <div>
+                <p class="px-6 pb-6 text-sm sm:text-base text-charcoal-muted leading-relaxed border-t border-sand/50 pt-3">
+                  When you complete our 3-minute confidential questionnaire, we assess your clinical needs, cultural preferences, communication style, and scheduling availability. Our clinical matching engine then pairs you with a therapist licensed in your state whose specialty aligns with your goals. Over 98% of clients love their initial match!
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Item 2 -->
+          <div class="bg-white rounded-2xl border border-sand-dark/80 overflow-hidden shadow-soft transition-all duration-200">
+            <button type="button" class="faq-toggle w-full px-6 py-5 text-left flex items-center justify-between gap-4 focus:outline-none focus:ring-2 focus:ring-primary rounded-2xl" aria-expanded="false">
+              <span class="text-base sm:text-lg font-bold text-charcoal">Are Drozo therapists fully licensed professionals?</span>
+              <span class="w-8 h-8 rounded-full bg-sand flex items-center justify-center shrink-0 text-charcoal transition-transform duration-300 faq-icon">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+              </span>
+            </button>
+            <div class="faq-answer">
+              <div>
+                <p class="px-6 pb-6 text-sm sm:text-base text-charcoal-muted leading-relaxed border-t border-sand/50 pt-3">
+                  Yes, absolutely. Every therapist on Drozo is an independently licensed, state-board certified mental health practitioner (such as a PsyD, PhD, LMFT, LCSW, or LPCC). Each therapist holds a Master’s or Doctorate degree, has completed at least 3 years and 1,000+ hours of supervised clinical experience, and has passed extensive background screening.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Item 3 -->
+          <div class="bg-white rounded-2xl border border-sand-dark/80 overflow-hidden shadow-soft transition-all duration-200">
+            <button type="button" class="faq-toggle w-full px-6 py-5 text-left flex items-center justify-between gap-4 focus:outline-none focus:ring-2 focus:ring-primary rounded-2xl" aria-expanded="false">
+              <span class="text-base sm:text-lg font-bold text-charcoal">How do virtual sessions take place?</span>
+              <span class="w-8 h-8 rounded-full bg-sand flex items-center justify-center shrink-0 text-charcoal transition-transform duration-300 faq-icon">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+              </span>
+            </button>
+            <div class="faq-answer">
+              <div>
+                <p class="px-6 pb-6 text-sm sm:text-base text-charcoal-muted leading-relaxed border-t border-sand/50 pt-3">
+                  You can connect directly through your private Drozo portal on your computer, tablet, or smartphone without downloading clunky software. You choose whether each live session is conducted via high-definition video, audio-only phone call, or synchronous live messaging. You also have 24/7 access to your secure chatroom to leave notes anytime.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Item 4 -->
+          <div class="bg-white rounded-2xl border border-sand-dark/80 overflow-hidden shadow-soft transition-all duration-200">
+            <button type="button" class="faq-toggle w-full px-6 py-5 text-left flex items-center justify-between gap-4 focus:outline-none focus:ring-2 focus:ring-primary rounded-2xl" aria-expanded="false">
+              <span class="text-base sm:text-lg font-bold text-charcoal">Can I use my insurance or HSA/FSA funds?</span>
+              <span class="w-8 h-8 rounded-full bg-sand flex items-center justify-center shrink-0 text-charcoal transition-transform duration-300 faq-icon">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+              </span>
+            </button>
+            <div class="faq-answer">
+              <div>
+                <p class="px-6 pb-6 text-sm sm:text-base text-charcoal-muted leading-relaxed border-t border-sand/50 pt-3">
+                  Drozo directly accepts most major Health Savings Accounts (HSA) and Flexible Spending Accounts (FSA) cards. While we are an out-of-network provider for commercial health insurance to guarantee total privacy and eliminate arbitrary insurer session caps, we provide itemized superbills upon request which many clients successfully submit for partial insurance reimbursement.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Item 5 -->
+          <div class="bg-white rounded-2xl border border-sand-dark/80 overflow-hidden shadow-soft transition-all duration-200">
+            <button type="button" class="faq-toggle w-full px-6 py-5 text-left flex items-center justify-between gap-4 focus:outline-none focus:ring-2 focus:ring-primary rounded-2xl" aria-expanded="false">
+              <span class="text-base sm:text-lg font-bold text-charcoal">What if I want to switch to a different therapist?</span>
+              <span class="w-8 h-8 rounded-full bg-sand flex items-center justify-center shrink-0 text-charcoal transition-transform duration-300 faq-icon">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+              </span>
+            </button>
+            <div class="faq-answer">
+              <div>
+                <p class="px-6 pb-6 text-sm sm:text-base text-charcoal-muted leading-relaxed border-t border-sand/50 pt-3">
+                  Therapy is deeply personal, and chemistry matters. If you ever feel your matched therapist isn’t the right fit, you can switch with a single click inside your account dashboard at any point during your subscription—with zero awkward conversations and zero additional fees.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Item 6 -->
+          <div class="bg-white rounded-2xl border border-sand-dark/80 overflow-hidden shadow-soft transition-all duration-200">
+            <button type="button" class="faq-toggle w-full px-6 py-5 text-left flex items-center justify-between gap-4 focus:outline-none focus:ring-2 focus:ring-primary rounded-2xl" aria-expanded="false">
+              <span class="text-base sm:text-lg font-bold text-charcoal">Is my personal information and session data secure?</span>
+              <span class="w-8 h-8 rounded-full bg-sand flex items-center justify-center shrink-0 text-charcoal transition-transform duration-300 faq-icon">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+              </span>
+            </button>
+            <div class="faq-answer">
+              <div>
+                <p class="px-6 pb-6 text-sm sm:text-base text-charcoal-muted leading-relaxed border-t border-sand/50 pt-3">
+                  Uncompromising confidentiality is our highest ethical priority. All video streams and messaging rooms are protected with banking-grade 256-bit SSL encryption. We are 100% HIPAA compliant, our servers are guarded around the clock, and we adhere to a strict policy never to sell or disclose patient data under any commercial circumstances.
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- 10. CTA BANNER (Full-width High Impact Section with Email Matching Box)   -->
+    <!-- ========================================================================= -->
+    <section id="matching-quiz" class="relative overflow-hidden py-20 lg:py-28 bg-gradient-to-br from-primary-dark via-primary to-charcoal text-white">
+      
+      <!-- Subtle Decorative Vector Elements -->
+      <div class="absolute -top-24 -right-24 w-96 h-96 bg-primary-light/20 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-accent/20 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center fade-in-section">
+        
+        <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 text-white/90 text-xs sm:text-sm font-semibold tracking-wide border border-white/20 backdrop-blur-md mb-6">
+          🌿 Begin Your Transformation
+        </span>
+
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight max-w-3xl mx-auto mb-6">
+          Take the First Step Toward a Calmer, More Fulfilling Life Today
+        </h2>
+
+        <p class="text-base sm:text-xl text-primary-100 max-w-2xl mx-auto mb-10 leading-relaxed font-light">
+          Join over 250,000 individuals who found their ideal therapist through Drozo. Enter your email to begin your customized matching assessment.
+        </p>
+
+        <!-- Email matching input form -->
+        <form id="cta-form" class="max-w-xl mx-auto flex flex-col sm:flex-row gap-3 p-2 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 shadow-2xl">
+          <input 
+            type="email" 
+            id="cta-email" 
+            required 
+            placeholder="Enter your email address..." 
+            class="flex-1 px-5 py-4 rounded-xl bg-white text-charcoal placeholder-charcoal-muted/70 text-sm focus:outline-none focus:ring-2 focus:ring-accent shadow-inner"
+            aria-label="Email address for therapist matching"
+          >
+          <button 
+            type="submit" 
+            class="px-8 py-4 bg-accent hover:bg-accent-hover text-white text-sm font-bold rounded-xl shadow-lg transition-all duration-200 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent"
+          >
+            Start Matching
+          </button>
+        </form>
+
+        <!-- Form Success State Toast -->
+        <div id="cta-success" class="hidden max-w-md mx-auto mt-4 p-4 rounded-xl bg-emerald-800/90 border border-emerald-400 text-white text-sm font-medium animate-in fade-in">
+          ✓ Great! We’ve sent your secure confidential matching link. Check your inbox to begin.
+        </div>
+
+        <!-- Trust reassuring checklist -->
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-6 text-xs sm:text-sm text-primary-100 font-medium">
+          <span class="flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-emerald-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+            Takes less than 3 minutes
+          </span>
+          <span class="flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-emerald-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+            No credit card needed to match
+          </span>
+          <span class="flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-emerald-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+            100% Confidential & Secure
+          </span>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- 11. FOOTER (Company Links, Resources, Legal, SVGs & Emergency Notice)      -->
+  <!-- ========================================================================= -->
+  <footer class="bg-charcoal text-sand-light pt-16 pb-12 border-t border-charcoal-light">
+    
+    <!-- Emergency Crisis Warning Banner -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
+      <div class="rounded-2xl bg-charcoal-light/60 border border-charcoal-light p-5 sm:p-6 text-xs sm:text-sm text-sand-light/90 leading-relaxed flex flex-col sm:flex-row items-center gap-4">
+        <div class="w-10 h-10 rounded-xl bg-accent/20 text-accent flex items-center justify-center shrink-0">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        </div>
+        <p class="flex-1">
+          <strong>Immediate Crisis Notice:</strong> If you are in immediate physical danger, experiencing suicidal thoughts, or need urgent medical attention, please do not use this site. Call or text the <strong>988 Suicide & Crisis Lifeline (US)</strong>, contact your local emergency hotline (911), or go to the nearest emergency department.
+        </p>
+      </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Footer Columns -->
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-8 pb-12 border-b border-charcoal-light/70">
+        
+        <!-- Brand Summary Column (Span 2 on medium screens) -->
+        <div class="col-span-2 space-y-4">
+          <a href="#" class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-white shadow">
+              <svg class="w-5 h-5 text-sand-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22C12 22 20 18 20 10C20 4.5 15.5 2 12 2C8.5 2 4 4.5 4 10C4 18 12 22 12 22Z" fill="rgba(248, 247, 244, 0.15)"></path>
+                <path d="M12 2V22"></path>
+                <path d="M12 7C9.5 8 7 10.5 7 14"></path>
+                <path d="M12 11C14.5 12 17 14.5 17 17"></path>
+              </svg>
+            </div>
+            <span class="font-heading font-extrabold text-2xl tracking-tight text-white">Drozo <span class="text-xs text-primary-light uppercase tracking-widest font-sans">Therapy</span></span>
+          </a>
+          <p class="text-xs sm:text-sm text-charcoal-muted max-w-sm leading-relaxed">
+            Drozo connects people with licensed therapists across the country. Our mission is to make evidence-based mental healthcare approachable, stigma-free, and accessible to everyone.
+          </p>
+          
+          <!-- Social Icons -->
+          <div class="flex items-center space-x-3 pt-2">
+            <a href="#social" aria-label="Drozo on Twitter" class="w-9 h-9 rounded-full bg-charcoal-light flex items-center justify-center text-sand-light/80 hover:text-white hover:bg-primary transition-all">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </a>
+            <a href="#social" aria-label="Drozo on Instagram" class="w-9 h-9 rounded-full bg-charcoal-light flex items-center justify-center text-sand-light/80 hover:text-white hover:bg-primary transition-all">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+            </a>
+            <a href="#social" aria-label="Drozo on LinkedIn" class="w-9 h-9 rounded-full bg-charcoal-light flex items-center justify-center text-sand-light/80 hover:text-white hover:bg-primary transition-all">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
             </a>
           </div>
         </div>
-      </div>
-    </section>
 
-    <!-- HOW IT WORKS -->
-    <section id="how" class="py-16 bg-white border-y border-sand-dark">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center max-w-2xl mx-auto mb-12">
-          <span class="text-xs font-extrabold uppercase tracking-widest text-primary">Simple 3-Step Process</span>
-          <h2 class="text-3xl font-extrabold text-charcoal mt-2">How Drozo Therapy Works</h2>
-        </div>
-        <div class="grid md:grid-cols-3 gap-8">
-          <div class="p-8 rounded-3xl bg-sand-light border border-sand-dark space-y-4">
-            <div class="w-12 h-12 rounded-2xl bg-primary text-white font-extrabold flex items-center justify-center text-lg shadow-md">1</div>
-            <h3 class="text-lg font-bold text-charcoal">Brief Intake Assessment</h3>
-            <p class="text-xs sm:text-sm text-charcoal-muted leading-relaxed">Tell us what you would like support with, your preferred times, and your comfort preferences.</p>
-          </div>
-          <div class="p-8 rounded-3xl bg-sand-light border border-sand-dark space-y-4">
-            <div class="w-12 h-12 rounded-2xl bg-primary text-white font-extrabold flex items-center justify-center text-lg shadow-md">2</div>
-            <h3 class="text-lg font-bold text-charcoal">Protected Biometric Sanctuary</h3>
-            <p class="text-xs sm:text-sm text-charcoal-muted leading-relaxed">Protect your account using Face ID, hardware passkeys, or phone approval with Drozo Guard.</p>
-          </div>
-          <div class="p-8 rounded-3xl bg-sand-light border border-sand-dark space-y-4">
-            <div class="w-12 h-12 rounded-2xl bg-primary text-white font-extrabold flex items-center justify-center text-lg shadow-md">3</div>
-            <h3 class="text-lg font-bold text-charcoal">Book and Meet Confidentially</h3>
-            <p class="text-xs sm:text-sm text-charcoal-muted leading-relaxed">Pick a slot and choose Discord voice or Jitsi video once. Your join link unlocks when your host starts.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- WHAT YOU GET / FEATURES -->
-    <section id="features" class="py-20 bg-sand-light">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center max-w-2xl mx-auto mb-14">
-          <span class="text-xs font-extrabold uppercase tracking-widest text-primary">Core Clinical Capabilities</span>
-          <h2 class="text-3xl font-extrabold text-charcoal mt-2">Built for Calm, Confidentiality, and Agency</h2>
-        </div>
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div class="p-7 rounded-3xl bg-white border border-sand-dark shadow-sm space-y-3">
-            <span class="text-3xl">🙂</span>
-            <h3 class="text-base font-bold text-charcoal">Face ID Biometric Login</h3>
-            <p class="text-xs text-charcoal-muted leading-relaxed">Fast, Apple-style facial scan. Your face vector is stored as encrypted math numbers, never as an unencrypted image.</p>
-          </div>
-          <div class="p-7 rounded-3xl bg-white border border-sand-dark shadow-sm space-y-3">
-            <span class="text-3xl">🎮</span>
-            <h3 class="text-base font-bold text-charcoal">Discord or Video Choice</h3>
-            <p class="text-xs text-charcoal-muted leading-relaxed">Pick Discord voice chat or Jitsi video when booking. Your session channel is locked in advance so nothing gets mixed up.</p>
-          </div>
-          <div class="p-7 rounded-3xl bg-white border border-sand-dark shadow-sm space-y-3">
-            <span class="text-3xl">🗂️</span>
-            <h3 class="text-base font-bold text-charcoal">Device Sanctuary Vault</h3>
-            <p class="text-xs text-charcoal-muted leading-relaxed">Store confidential reflection journals and therapy homework safely inside your browser with local IndexedDB storage.</p>
-          </div>
-          <div class="p-7 rounded-3xl bg-white border border-sand-dark shadow-sm space-y-3">
-            <span class="text-3xl">🤖</span>
-            <h3 class="text-base font-bold text-charcoal">AI Reflection Assistant</h3>
-            <p class="text-xs text-charcoal-muted leading-relaxed">Practice 4-7-8 breathing, 5-4-3-2-1 grounding exercises, and book sessions 24/7 with the friendly reflection bot.</p>
-          </div>
-          <div class="p-7 rounded-3xl bg-white border border-sand-dark shadow-sm space-y-3">
-            <span class="text-3xl">📄</span>
-            <h3 class="text-base font-bold text-charcoal">Dispatched Clinical Documents</h3>
-            <p class="text-xs text-charcoal-muted leading-relaxed">Receive post-session outcome documents and prescribed reflections directly into your 30-day clinical record.</p>
-          </div>
-          <div class="p-7 rounded-3xl bg-white border border-sand-dark shadow-sm space-y-3">
-            <span class="text-3xl">🛡️</span>
-            <h3 class="text-base font-bold text-charcoal">Drozo Guard Phone Sync</h3>
-            <p class="text-xs text-charcoal-muted leading-relaxed">Link your phone to approve sign-in challenges on desktop in real-time with one tap.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- MOOD CHECK-IN -->
-    <section class="py-16 bg-white border-t border-sand-dark text-center">
-      <div class="max-w-2xl mx-auto px-4 space-y-4">
-        <span class="text-xs font-extrabold uppercase tracking-widest text-primary">Daily Pulse</span>
-        <h2 class="text-2xl sm:text-3xl font-extrabold text-charcoal">How are you feeling right now?</h2>
-        <div class="flex justify-center gap-3 pt-3 flex-wrap">
-          <button type="button" onclick="handleMoodSelect(0)" class="w-14 h-14 rounded-2xl bg-sand hover:bg-sand-dark text-2xl shadow-sm transition transform hover:scale-110">😞</button>
-          <button type="button" onclick="handleMoodSelect(1)" class="w-14 h-14 rounded-2xl bg-sand hover:bg-sand-dark text-2xl shadow-sm transition transform hover:scale-110">😕</button>
-          <button type="button" onclick="handleMoodSelect(2)" class="w-14 h-14 rounded-2xl bg-sand hover:bg-sand-dark text-2xl shadow-sm transition transform hover:scale-110">😐</button>
-          <button type="button" onclick="handleMoodSelect(3)" class="w-14 h-14 rounded-2xl bg-sand hover:bg-sand-dark text-2xl shadow-sm transition transform hover:scale-110">🙂</button>
-          <button type="button" onclick="handleMoodSelect(4)" class="w-14 h-14 rounded-2xl bg-sand hover:bg-sand-dark text-2xl shadow-sm transition transform hover:scale-110">😄</button>
-        </div>
-        <div id="moodFeedback" class="min-h-[64px] text-xs sm:text-sm text-charcoal-muted max-w-lg mx-auto pt-2 leading-relaxed"></div>
-      </div>
-    </section>
-
-    <!-- FAQ SECTION -->
-    <section id="faq" class="py-20 bg-sand-light border-t border-sand-dark">
-      <div class="max-w-3xl mx-auto px-4 sm:px-6">
-        <div class="text-center mb-10">
-          <span class="text-xs font-extrabold uppercase tracking-widest text-primary">Transparent Care</span>
-          <h2 class="text-3xl font-extrabold text-charcoal mt-2">Frequently Asked Questions</h2>
-        </div>
-        <div class="space-y-3 text-left">
-          <details class="bg-white rounded-2xl border border-sand-dark p-5">
-            <summary class="font-bold text-sm text-charcoal cursor-pointer flex justify-between items-center">
-              What is Drozo Therapy?
-              <span class="text-primary text-lg font-bold">+</span>
-            </summary>
-            <p class="text-xs text-charcoal-muted mt-3 leading-relaxed">
-              Drozo Therapy is a private, confidential telehealth sanctuary where clients can book sessions with certified practitioners, store encrypted personal documents, and track clinical outcomes.
-            </p>
-          </details>
-          <details class="bg-white rounded-2xl border border-sand-dark p-5">
-            <summary class="font-bold text-sm text-charcoal cursor-pointer flex justify-between items-center">
-              Can I choose between Discord voice and Jitsi video?
-              <span class="text-primary text-lg font-bold">+</span>
-            </summary>
-            <p class="text-xs text-charcoal-muted mt-3 leading-relaxed">
-              Yes! You select your preferred channel (🎮 Discord or 🎥 Jitsi video) when you book your appointment. That channel is locked for the session so both you and your provider are aligned.
-            </p>
-          </details>
-          <details class="bg-white rounded-2xl border border-sand-dark p-5">
-            <summary class="font-bold text-sm text-charcoal cursor-pointer flex justify-between items-center">
-              Is my personal data encrypted and protected?
-              <span class="text-primary text-lg font-bold">+</span>
-            </summary>
-            <p class="text-xs text-charcoal-muted mt-3 leading-relaxed">
-              Yes. All sessions, accounts, and clinical document dispatches are secured using Supabase Row-Level Security, multi-factor biometrics, and 256-bit encryption. Vault files stay strictly inside your local browser storage.
-            </p>
-          </details>
-        </div>
-      </div>
-    </section>
-
-    <!-- FOOTER WITH CRISIS HOTLINE -->
-    <footer class="bg-white border-t border-sand-dark py-12">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
-        <div class="p-4 rounded-2xl bg-sand max-w-2xl mx-auto border border-sand-dark text-xs text-charcoal-muted leading-relaxed">
-          <strong class="text-charcoal block mb-1">⚠️ Emergency & Crisis Notice</strong>
-          Drozo Therapy is not an emergency psychiatric service. If you are experiencing suicidal thoughts, self-harm impulses, or a medical crisis, please call or text <strong class="text-primary font-bold">988</strong> or contact your local emergency number immediately.
-        </div>
-        <p class="text-xs text-charcoal-muted">
-          &copy; 2026 Drozo Therapy. All rights reserved. Built with confidentiality and patient trust.
-        </p>
-      </div>
-    </footer>
-
-  </div>
-
-  <!-- ========================================================================= -->
-  <!-- LOGGED-IN CLIENT PORTAL CONTENT (Visible when authenticated)              -->
-  <!-- ========================================================================= -->
-  <div id="portalContent" class="gone flex-grow py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
-    
-    <!-- Welcome Header Banner -->
-    <div class="rounded-3xl bg-gradient-to-r from-primary-dark via-primary to-primary-light text-white p-7 sm:p-9 shadow-xl relative overflow-hidden mb-8">
-      <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div class="space-y-2">
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-xs font-bold" id="welcomeShield">
-            🔒 Protected Sanctuary
-          </div>
-          <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">
-            Welcome back, <span id="welcomeEmailDisplay">Client</span>
-          </h1>
-          <p class="text-sand-light/90 text-xs sm:text-sm max-w-xl">
-            Your appointments, dispatched clinical outcomes, and personal vault files are ready for your session today.
-          </p>
-        </div>
-        <div class="flex items-center gap-3">
-          <button type="button" onclick="focusSection('appointment-section')" class="px-5 py-2.5 rounded-xl bg-white text-primary font-heading font-bold text-xs sm:text-sm hover:bg-sand transition shadow">
-            Book Appointment
-          </button>
-          <button type="button" onclick="toggleAiAssistant()" class="px-5 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 text-white font-heading font-bold text-xs sm:text-sm transition">
-            💬 Open Assistant
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Main Grid: Left Schedule & History (2 cols), Right Vault (1 col) -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      
-      <!-- LEFT 2 COLS: Active Appointments & 30-Day Clinical Documents -->
-      <div class="lg:col-span-2 space-y-8">
-        
-        <!-- ACTIVE APPOINTMENT SECTION -->
-        <div id="appointment-section" class="bg-white rounded-3xl p-6 sm:p-7 border border-sand-dark shadow-sm space-y-5">
-          <div class="flex items-center justify-between border-b border-sand-dark pb-4">
-            <div class="flex items-center gap-2.5">
-              <span class="text-2xl">📅</span>
-              <div>
-                <h2 class="text-base font-extrabold text-charcoal">Session Appointment</h2>
-                <p class="text-xs text-charcoal-muted">Choose your slot and locked channel (Discord or Jitsi video).</p>
-              </div>
-            </div>
-            <span id="appointmentStatusBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-sand text-charcoal">
-              Checking schedule…
-            </span>
-          </div>
-
-          <!-- Dynamic Appointment Content (Form or Active Card) -->
-          <div id="appointmentContainer">
-            <!-- Injected via JavaScript -->
-          </div>
+        <!-- Column 2: Platform Links -->
+        <div>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-sand-muted mb-4">Platform</h4>
+          <ul class="space-y-2.5 text-xs sm:text-sm text-charcoal-muted">
+            <li><a href="#how-it-works" class="hover:text-primary-light transition-colors">How It Works</a></li>
+            <li><a href="#therapists" class="hover:text-primary-light transition-colors">Our Therapists</a></li>
+            <li><a href="#matching-quiz" class="hover:text-primary-light transition-colors">Therapist Matching</a></li>
+            <li><a href="#couples" class="hover:text-primary-light transition-colors">Couples Counseling</a></li>
+            <li><a href="#teen" class="hover:text-primary-light transition-colors">Teen Therapy (13-17)</a></li>
+          </ul>
         </div>
 
-        <!-- 30-DAY CLINICAL ENCOUNTER HISTORY & OUTCOME DOCS -->
-        <div class="bg-white rounded-3xl p-6 sm:p-7 border border-sand-dark shadow-sm space-y-5">
-          <div class="flex items-center justify-between border-b border-sand-dark pb-4">
-            <div class="flex items-center gap-2.5">
-              <span class="text-2xl">📄</span>
-              <div>
-                <h2 class="text-base font-extrabold text-charcoal">30-Day Clinical Documents & Outcomes</h2>
-                <p class="text-xs text-charcoal-muted">Encounters and treatment progress dispatched by your therapist.</p>
-              </div>
-            </div>
-            <span class="text-xs font-bold text-primary" id="clinicalDocCount">0 Records</span>
-          </div>
+        <!-- Column 3: Resources -->
+        <div>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-sand-muted mb-4">Resources</h4>
+          <ul class="space-y-2.5 text-xs sm:text-sm text-charcoal-muted">
+            <li><a href="#blog" class="hover:text-primary-light transition-colors">Mental Health Blog</a></li>
+            <li><a href="#screening" class="hover:text-primary-light transition-colors">Free Anxiety Screen</a></li>
+            <li><a href="#depression" class="hover:text-primary-light transition-colors">Depression Test</a></li>
+            <li><a href="#faq" class="hover:text-primary-light transition-colors">Help Center / FAQ</a></li>
+            <li><a href="#crisis" class="hover:text-primary-light transition-colors">Crisis Hotlines</a></li>
+          </ul>
+        </div>
 
-          <div id="clinicalDocsList" class="space-y-3">
-            <div class="text-center py-8 text-xs text-charcoal-muted">Loading clinical records from database…</div>
-          </div>
+        <!-- Column 4: Company & Legal -->
+        <div>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-sand-muted mb-4">Company & Legal</h4>
+          <ul class="space-y-2.5 text-xs sm:text-sm text-charcoal-muted">
+            <li><a href="#about" class="hover:text-primary-light transition-colors">About Drozo</a></li>
+            <li><a href="#careers" class="hover:text-primary-light transition-colors">Careers & Clinicians</a></li>
+            <li><a href="#privacy" class="hover:text-primary-light transition-colors">Privacy Policy</a></li>
+            <li><a href="#terms" class="hover:text-primary-light transition-colors">Terms of Service</a></li>
+            <li><a href="#hipaa" class="hover:text-primary-light transition-colors">HIPAA Compliance</a></li>
+          </ul>
         </div>
 
       </div>
 
-      <!-- RIGHT 1 COL: Sanctuary Vault (Client Device Storage) -->
-      <div class="space-y-8">
-        <div class="bg-white rounded-3xl p-6 border border-sand-dark shadow-sm space-y-4">
-          <div class="flex items-center justify-between border-b border-sand-dark pb-3">
-            <div class="flex items-center gap-2">
-              <span class="text-xl">🗂️</span>
-              <div>
-                <h2 class="text-sm font-extrabold text-charcoal">Sanctuary Vault</h2>
-                <p class="text-[11px] text-charcoal-muted">Encrypted in browser IndexedDB.</p>
-              </div>
-            </div>
-            <label for="vaultFileInput" class="cursor-pointer px-3 py-1.5 bg-primary hover:bg-primary-dark text-white rounded-xl text-xs font-bold transition flex items-center gap-1 shadow-sm">
-              <span>⬆️</span> Upload
-            </label>
-            <input type="file" id="vaultFileInput" class="hidden" onchange="handleVaultUpload(event)" multiple />
-          </div>
-
-          <!-- Progress Bar -->
-          <div id="vaultUploadBar" class="hidden w-full bg-sand rounded-full h-1.5 overflow-hidden">
-            <div id="vaultUploadFill" class="bg-primary h-1.5 transition-all duration-300" style="width: 0%"></div>
-          </div>
-
-          <!-- File List -->
-          <div id="vaultFileList" class="space-y-2.5 max-h-80 overflow-y-auto">
-            <div class="text-center py-6 text-xs text-charcoal-muted">Loading documents…</div>
-          </div>
-        </div>
-
-        <!-- Guided Grounding Box -->
-        <div class="p-6 rounded-3xl bg-sand border border-sand-dark space-y-3">
-          <div class="flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-wider">
-            <span>🌿</span> Grounding Exercise
-          </div>
-          <h3 class="text-sm font-bold text-charcoal">4-7-8 Breathing Technique</h3>
-          <p class="text-xs text-charcoal-muted leading-relaxed">
-            Inhale deeply through your nose for 4 seconds, hold your breath gently for 7 seconds, then exhale slowly through your mouth for 8 seconds.
-          </p>
-          <div class="pt-2">
-            <button type="button" onclick="toggleAiAssistant('Start 4-7-8 breathing exercise')" class="w-full py-2 bg-white hover:bg-sand-dark text-primary border border-sand-dark font-bold text-xs rounded-xl transition shadow-sm">
-              Practice With Assistant →
-            </button>
-          </div>
+      <!-- Bottom Row: Copyright & Disclaimers -->
+      <div class="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-charcoal-muted gap-4 text-center sm:text-left">
+        <p>© 2026 Drozo Health Inc. All rights reserved. Made with compassion for emotional wellbeing.</p>
+        <div class="flex items-center space-x-6">
+          <a href="#privacy" class="hover:text-sand-light transition-colors">Privacy Notice</a>
+          <a href="#terms" class="hover:text-sand-light transition-colors">User Agreement</a>
+          <a href="#cookies" class="hover:text-sand-light transition-colors">Cookie Preferences</a>
         </div>
       </div>
 
     </div>
-
-  </div>
-
-  <!-- ========================================================================= -->
-  <!-- FLOATING AI THERAPY ASSISTANT DRAWER                                      -->
-  <!-- ========================================================================= -->
-  <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end">
-    <!-- Chat Window Drawer -->
-    <div id="aiChatDrawer" class="hidden mb-3 w-80 sm:w-96 bg-white border border-sand-dark rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[480px] transition-all">
-      <div class="p-4 bg-primary text-white flex justify-between items-center shadow-sm">
-        <div class="flex items-center gap-2">
-          <span class="text-lg">🤖</span>
-          <div>
-            <div class="text-xs font-bold font-heading">Drozo AI Therapy Helper</div>
-            <div class="text-[10px] text-sand-light/80">Supportive reflection & session booking</div>
-          </div>
-        </div>
-        <button type="button" onclick="toggleAiAssistant()" class="text-white hover:text-sand text-lg font-bold">&times;</button>
-      </div>
-
-      <!-- Messages Stream -->
-      <div id="chatMessages" class="flex-1 p-4 overflow-y-auto space-y-3 text-xs">
-        <div class="flex gap-2">
-          <span class="text-base">🤖</span>
-          <div class="bg-sand p-3 rounded-2xl max-w-[85%] text-charcoal leading-relaxed">
-            Hello! I am your Drozo reflection assistant. You can speak with me to decompress, practice grounding exercises, or tell me: <em>"Book a session for tomorrow at 4 PM"</em>.
-          </div>
-        </div>
-      </div>
-
-      <!-- Quick Prompt Chips -->
-      <div class="flex flex-wrap gap-1.5 px-3 pb-2">
-        <button type="button" onclick="quickChat('I feel anxious')" class="px-2.5 py-1 rounded-full bg-sand text-charcoal text-[11px] font-semibold hover:bg-sand-dark">Anxious</button>
-        <button type="button" onclick="quickChat('Help me breathe')" class="px-2.5 py-1 rounded-full bg-sand text-charcoal text-[11px] font-semibold hover:bg-sand-dark">Breathe</button>
-        <button type="button" onclick="quickChat('Book appointment')" class="px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-bold hover:bg-primary/20">Book Session</button>
-      </div>
-
-      <!-- Chat Input Form -->
-      <form onsubmit="handleChatSubmit(event)" class="p-3 border-t border-sand-dark flex gap-2">
-        <input type="text" id="chatInput" placeholder="Share your thoughts or book a slot…" class="flex-1 px-3 py-2 text-xs bg-sand rounded-xl border border-sand-dark focus:outline-none focus:border-primary" />
-        <button type="submit" class="px-4 py-2 bg-primary text-white rounded-xl text-xs font-bold hover:bg-primary-dark transition shadow-sm">Send</button>
-      </form>
-    </div>
-
-    <!-- Floating Toggle Button -->
-    <button type="button" onclick="toggleAiAssistant()" id="btnChatToggle" class="w-14 h-14 bg-primary hover:bg-primary-dark text-white rounded-full shadow-2xl flex items-center justify-center text-2xl transition transform hover:scale-105">
-      💬
-    </button>
-  </div>
+  </footer>
 
   <!-- ========================================================================= -->
-  <!-- MODAL: INTAKE QUIZ (GET STARTED)                                          -->
-  <!-- ========================================================================= -->
-  <div id="quizModal" class="hidden fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl border border-sand-dark overflow-hidden">
-      <div class="h-1.5 bg-sand"><div id="quizBar" class="h-1.5 bg-primary transition-all duration-300" style="width:20%"></div></div>
-      <div class="p-6 sm:p-8 space-y-6">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <span class="text-xs font-extrabold uppercase tracking-wider text-primary">Confidential Intake</span>
-          </div>
-          <button type="button" onclick="closeQuiz()" class="text-charcoal-muted hover:text-charcoal text-2xl leading-none">&times;</button>
-        </div>
-        <h3 id="quizTitle" class="text-2xl font-extrabold text-charcoal"></h3>
-        <p id="quizHint" class="text-xs text-charcoal-muted -mt-3"></p>
-        <div id="quizBody"></div>
-        <div class="flex items-center justify-between pt-4 border-t border-sand-dark">
-          <button type="button" onclick="quizBack()" class="px-5 py-2.5 rounded-full border border-sand-dark text-charcoal text-xs font-bold hover:bg-sand">
-            &#8249; Back
-          </button>
-          <button type="button" id="quizNextBtn" onclick="quizNext()" class="px-7 py-2.5 rounded-full bg-primary hover:bg-primary-dark text-white text-xs font-extrabold shadow">
-            Continue →
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ========================================================================= -->
-  <!-- MODAL: SANCTUARY DIGITAL ID PASS                                          -->
-  <!-- ========================================================================= -->
-  <div id="myIdPassModal" class="hidden fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-sand-dark space-y-4">
-      <div class="flex items-center justify-between border-b border-sand-dark pb-3">
-        <div class="flex items-center gap-2">
-          <span class="text-xl">🪪</span>
-          <h3 class="text-sm font-extrabold text-charcoal uppercase tracking-wider">Sanctuary ID Pass</h3>
-        </div>
-        <button type="button" onclick="closeMyIdPassModal()" class="text-charcoal-muted hover:text-charcoal text-lg font-bold leading-none">&times;</button>
-      </div>
-
-      <!-- ID Card Display -->
-      <div class="p-4 rounded-2xl bg-gradient-to-tr from-charcoal to-[#24354A] text-white border border-sand-dark/30 shadow-xl space-y-3">
-        <div class="flex items-center justify-between">
-          <span class="text-[10px] font-black uppercase text-sand-light tracking-widest">DROZO CLINICAL PASS</span>
-          <span class="text-[9px] mono px-2 py-0.5 rounded-full bg-primary/80 text-white font-bold">VERIFIED</span>
-        </div>
-        <div class="flex items-center gap-3 pt-1">
-          <div class="w-14 h-14 rounded-xl bg-charcoal-dark border border-white/20 flex items-center justify-center overflow-hidden shrink-0 shadow">
-            <span class="text-2xl" id="cardPhotoIcon">👤</span>
-            <img id="cardCapturedImage" class="w-full h-full object-cover hidden" alt="ID Photo" />
-          </div>
-          <div class="overflow-hidden">
-            <div class="text-xs font-bold text-white truncate" id="cardUserName">Client</div>
-            <div class="text-[10px] text-primary-light mono truncate" id="cardUserEmail">...</div>
-            <div class="text-[9px] text-slate-400 mt-0.5 mono" id="cardIssueDate">Issued 2026</div>
-          </div>
-        </div>
-        <div class="pt-2 border-t border-white/10 flex items-center justify-between text-[10px]">
-          <span class="text-slate-400">Ref Code:</span>
-          <span class="mono font-bold text-sand-light" id="cardPassReference">IDP-DROZO</span>
-        </div>
-      </div>
-
-      <!-- Camera Preview Box -->
-      <div id="idCameraBox" class="hidden space-y-2">
-        <div id="idCaptureReader" class="w-full aspect-square rounded-2xl overflow-hidden bg-black mx-auto"></div>
-        <div class="flex justify-center gap-2">
-          <button type="button" onclick="captureCardPhoto()" class="px-4 py-1.5 bg-primary text-white font-bold text-xs rounded-xl shadow">📸 Snap Photo</button>
-          <button type="button" onclick="closeIdCamera()" class="px-4 py-1.5 bg-sand text-charcoal text-xs font-bold rounded-xl">Cancel</button>
-        </div>
-      </div>
-
-      <div class="space-y-2 pt-1" id="idActionButtons">
-        <button type="button" onclick="openIdCameraForCard()" class="w-full py-2.5 bg-charcoal hover:bg-charcoal-light text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition shadow">
-          <span>📷</span> Take Photo for Pass
-        </button>
-        <button type="button" onclick="exportDigitalIdCard()" class="w-full py-2 bg-sand hover:bg-sand-dark text-charcoal font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition">
-          <span>📄</span> Download Digital Document
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ========================================================================= -->
-  <!-- MODAL: SECURITY SETTINGS                                                  -->
-  <!-- ========================================================================= -->
-  <div id="securityModal" class="hidden fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-sand-dark space-y-4">
-      <div class="flex items-center justify-between border-b border-sand-dark pb-3">
-        <div class="flex items-center gap-2">
-          <span class="text-xl">⚙️</span>
-          <h3 class="text-sm font-extrabold text-charcoal uppercase tracking-wider">Security Settings</h3>
-        </div>
-        <button type="button" onclick="closeSecurityModal()" class="text-charcoal-muted hover:text-charcoal text-lg font-bold leading-none">&times;</button>
-      </div>
-
-      <p class="text-xs text-charcoal-muted">
-        Account: <strong id="secEmailDisplay" class="text-charcoal font-bold"></strong>
-      </p>
-
-      <div class="p-3.5 bg-sand rounded-2xl space-y-2">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-bold text-charcoal">Reset Biometrics & 2FA</span>
-          <span class="text-[10px] text-primary bg-primary/10 px-2 py-0.5 rounded-full font-bold">Re-link</span>
-        </div>
-        <p class="text-[11px] text-charcoal-muted">Clears all Face ID, Passkeys, and Authenticator links so you can re-enroll.</p>
-        <button type="button" onclick="handleResetSecurity()" class="w-full py-2 bg-charcoal hover:bg-charcoal-light text-white text-xs font-bold rounded-xl shadow-sm">
-          Reset 2FA & Setup Again →
-        </button>
-      </div>
-
-      <div class="p-3.5 bg-sand rounded-2xl space-y-2">
-        <span class="text-xs font-bold text-charcoal block">Change Password</span>
-        <input type="password" id="newSecPassword" placeholder="New password (min 8 chars)" class="w-full px-3 py-2 text-xs rounded-xl border border-sand-dark bg-white focus:outline-none focus:border-primary" />
-        <button type="button" onclick="handleChangePassword()" class="w-full py-2 bg-primary hover:bg-primary-dark text-white text-xs font-bold rounded-xl shadow-sm">
-          Save New Password
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ========================================================================= -->
-  <!-- JAVASCRIPT: SUPABASE SYNC, APPOINTMENTS, CLINICAL DOCS, VAULT, ASSISTANT  -->
+  <!-- JAVASCRIPT: Interactivity, Slider, Accordion, Toggle, Observer           -->
   <!-- ========================================================================= -->
   <script>
-    const SUPABASE_URL = (window.DROZO_CONFIG || {}).url;
-    const SUPABASE_ANON = (window.DROZO_CONFIG || {}).anon;
-    const DISCORD_INVITE_URL = "https://discord.gg/ePrjEPtg8X";
-    const STAFF_ROLES = ["therapist", "coordinator", "admin"];
+    // -------------------------------------------------------------
+    // Mobile Navigation Drawer Toggle
+    // -------------------------------------------------------------
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const hamburgerIcon = document.getElementById('hamburger-icon');
+    const closeIcon = document.getElementById('close-icon');
 
-    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
-      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+    mobileMenuBtn.addEventListener('click', () => {
+      const isExpanded = mobileMenuBtn.getAttribute('aria-expanded') === 'true';
+      mobileMenuBtn.setAttribute('aria-expanded', !isExpanded);
+      mobileMenu.classList.toggle('hidden');
+      hamburgerIcon.classList.toggle('hidden');
+      closeIcon.classList.toggle('hidden');
     });
 
-    let me = null;
-    let currentAppt = null;
-    let selectedBookingChannel = 'discord';
-    let apptTimer = null;
-    let idCaptureScanner = null;
+    // Close mobile menu on link click
+    document.querySelectorAll('.mobile-nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.add('hidden');
+        mobileMenuBtn.setAttribute('aria-expanded', 'false');
+        hamburgerIcon.classList.remove('hidden');
+        closeIcon.classList.add('hidden');
+      });
+    });
 
-    const $ = (id) => document.getElementById(id);
-    const show = (id) => { const el = $(id); if (el) el.classList.remove('hidden'); };
-    const hide = (id) => { const el = $(id); if (el) el.classList.add('hidden'); };
-    const escapeHtml = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-    const errMsg = (e) => (e && e.message) ? e.message : String(e);
-
-    // Boot on page load
-    window.addEventListener('DOMContentLoaded', async () => {
-      try {
-        const { data } = await sb.auth.getSession();
-        if (data && data.session) {
-          await loadUserProfile();
-          unlockPortalView();
-        } else {
-          showLandingView();
+    // -------------------------------------------------------------
+    // Intersection Observer for Scroll Fade-In Animation
+    // -------------------------------------------------------------
+    const fadeElements = document.querySelectorAll('.fade-in-section');
+    const observer = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          obs.unobserve(entry.target);
         }
-      } catch (_) {
-        showLandingView();
+      });
+    }, {
+      rootMargin: '0px 0px -40px 0px',
+      threshold: 0.1
+    });
+
+    fadeElements.forEach(el => observer.observe(el));
+
+    // -------------------------------------------------------------
+    // Testimonial Carousel with Auto-Rotation & Controls
+    // -------------------------------------------------------------
+    const slides = document.querySelectorAll('.testimonial-slide');
+    const dots = document.querySelectorAll('#carousel-dots button');
+    const prevBtn = document.getElementById('carousel-prev');
+    const nextBtn = document.getElementById('carousel-next');
+    const carouselContainer = document.getElementById('testimonial-carousel');
+    let currentSlide = 0;
+    let carouselInterval = null;
+
+    function showSlide(index) {
+      if (index < 0) index = slides.length - 1;
+      if (index >= slides.length) index = 0;
+      currentSlide = index;
+
+      slides.forEach((slide, i) => {
+        if (i === currentSlide) {
+          slide.classList.remove('opacity-0', 'pointer-events-none');
+          slide.classList.add('opacity-100');
+        } else {
+          slide.classList.remove('opacity-100');
+          slide.classList.add('opacity-0', 'pointer-events-none');
+        }
+      });
+
+      dots.forEach((dot, i) => {
+        if (i === currentSlide) {
+          dot.classList.remove('bg-sand-muted', 'w-3');
+          dot.classList.add('bg-primary', 'w-8');
+        } else {
+          dot.classList.remove('bg-primary', 'w-8');
+          dot.classList.add('bg-sand-muted', 'w-3');
+        }
+      });
+    }
+
+    function nextSlide() {
+      showSlide(currentSlide + 1);
+    }
+
+    function prevSlide() {
+      showSlide(currentSlide - 1);
+    }
+
+    function startAutoRotation() {
+      stopAutoRotation();
+      carouselInterval = setInterval(nextSlide, 5000);
+    }
+
+    function stopAutoRotation() {
+      if (carouselInterval) clearInterval(carouselInterval);
+    }
+
+    nextBtn.addEventListener('click', () => {
+      nextSlide();
+      startAutoRotation();
+    });
+
+    prevBtn.addEventListener('click', () => {
+      prevSlide();
+      startAutoRotation();
+    });
+
+    dots.forEach((dot, idx) => {
+      dot.addEventListener('click', () => {
+        showSlide(idx);
+        startAutoRotation();
+      });
+    });
+
+    carouselContainer.addEventListener('mouseenter', stopAutoRotation);
+    carouselContainer.addEventListener('mouseleave', startAutoRotation);
+    startAutoRotation();
+
+    // -------------------------------------------------------------
+    // FAQ Accordion with Smooth CSS Grid Height Transition
+    // -------------------------------------------------------------
+    const faqButtons = document.querySelectorAll('.faq-toggle');
+
+    faqButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const answer = button.nextElementSibling;
+        const icon = button.querySelector('.faq-icon');
+        const isOpen = answer.classList.contains('open');
+
+        // Optional: close other FAQ items
+        document.querySelectorAll('.faq-answer.open').forEach(openAnswer => {
+          if (openAnswer !== answer) {
+            openAnswer.classList.remove('open');
+            const otherBtn = openAnswer.previousElementSibling;
+            otherBtn.setAttribute('aria-expanded', 'false');
+            const otherIcon = otherBtn.querySelector('.faq-icon');
+            if (otherIcon) otherIcon.style.transform = 'rotate(0deg)';
+          }
+        });
+
+        if (isOpen) {
+          answer.classList.remove('open');
+          button.setAttribute('aria-expanded', 'false');
+          icon.style.transform = 'rotate(0deg)';
+        } else {
+          answer.classList.add('open');
+          button.setAttribute('aria-expanded', 'true');
+          icon.style.transform = 'rotate(180deg)';
+        }
+      });
+    });
+
+    // -------------------------------------------------------------
+    // Pricing Weekly / Monthly Billing Toggle
+    // -------------------------------------------------------------
+    const weeklyBtn = document.getElementById('billing-weekly-btn');
+    const monthlyBtn = document.getElementById('billing-monthly-btn');
+    const priceElements = document.querySelectorAll('.price-val');
+    const billingLabels = document.querySelectorAll('.billing-label');
+    const billingSubtexts = document.querySelectorAll('.billing-subtext');
+
+    weeklyBtn.addEventListener('click', () => {
+      weeklyBtn.classList.add('bg-primary', 'text-white', 'shadow-sm');
+      weeklyBtn.classList.remove('text-charcoal');
+      monthlyBtn.classList.remove('bg-primary', 'text-white', 'shadow-sm');
+      monthlyBtn.classList.add('text-charcoal');
+
+      priceElements.forEach(el => {
+        el.textContent = '$' + el.getAttribute('data-weekly');
+      });
+      billingLabels.forEach(el => el.textContent = '/ week');
+      billingSubtexts.forEach(el => el.textContent = 'Billed weekly. Cancel anytime.');
+    });
+
+    monthlyBtn.addEventListener('click', () => {
+      monthlyBtn.classList.add('bg-primary', 'text-white', 'shadow-sm');
+      monthlyBtn.classList.remove('text-charcoal');
+      weeklyBtn.classList.remove('bg-primary', 'text-white', 'shadow-sm');
+      weeklyBtn.classList.add('text-charcoal');
+
+      priceElements.forEach(el => {
+        el.textContent = '$' + el.getAttribute('data-monthly');
+      });
+      billingLabels.forEach(el => el.textContent = '/ month');
+      billingSubtexts.forEach(el => el.textContent = 'Billed monthly. Save 15% upfront.');
+    });
+
+    // -------------------------------------------------------------
+    // CTA Form Interactive Simulation
+    // -------------------------------------------------------------
+    const ctaForm = document.getElementById('cta-form');
+    const ctaSuccess = document.getElementById('cta-success');
+
+    ctaForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('cta-email').value;
+      if (email) {
+        ctaForm.classList.add('hidden');
+        ctaSuccess.classList.remove('hidden');
       }
     });
 
-    function showLandingView() {
-      $('portalContent').classList.add('gone');
-      $('landing').classList.remove('gone');
-      $('navPortal').classList.add('gone');
-      $('navPublic').classList.remove('gone');
+    // -------------------------------------------------------------
+    // Therapist Profile Preview Modal
+    // -------------------------------------------------------------
+    const therapistModal = document.getElementById('therapist-modal');
+    const modalAvatar = document.getElementById('modal-avatar');
+    const modalName = document.getElementById('modal-therapist-name');
+    const modalTitle = document.getElementById('modal-therapist-title');
+    const modalExp = document.getElementById('modal-therapist-exp');
+    const modalDesc = document.getElementById('modal-therapist-desc');
+
+    function openTherapistModal(name, title, exp, desc, initials) {
+      modalName.textContent = name;
+      modalTitle.textContent = title;
+      modalExp.textContent = exp;
+      modalDesc.textContent = desc;
+      modalAvatar.textContent = initials;
+      therapistModal.classList.remove('hidden');
+      therapistModal.classList.add('flex');
     }
 
-    async function loadUserProfile() {
-      const { data: { user } } = await sb.auth.getUser();
-      if (!user) return null;
-      let res = await sb.from('profiles').select('id,email,role,twofa_pref').eq('id', user.id).maybeSingle();
-      me = res.data || { id: user.id, email: user.email, role: 'patient', twofa_pref: null };
-      return me;
+    function closeTherapistModal() {
+      therapistModal.classList.add('hidden');
+      therapistModal.classList.remove('flex');
     }
 
-    function unlockPortalView() {
-      $('landing').classList.add('gone');
-      $('portalContent').classList.remove('gone');
-      $('navPublic').classList.add('gone');
-      $('navPortal').classList.remove('gone');
-
-      $('navUserEmail').textContent = me.email;
-      $('welcomeEmailDisplay').textContent = me.email.split('@')[0];
-      
-      const shield = {
-        face: 'Protected with Face ID',
-        totp: 'Protected with Authenticator App',
-        fingerprint: 'Protected with Fingerprint Passkey',
-        drozo_guard: 'Protected with Drozo Guard Sync',
-        none: 'Password Only'
-      }[me.twofa_pref || 'none'];
-      $('welcomeShield').textContent = '🔒 ' + shield;
-
-      if (STAFF_ROLES.includes(me.role)) {
-        $('navAdminLink').classList.remove('gone');
+    therapistModal.addEventListener('click', (e) => {
+      if (e.target === therapistModal) {
+        closeTherapistModal();
       }
+    });
 
-      loadAppointment();
-      loadDispatchedDocuments();
-      loadCloudVaultFiles();
+    // Check if user is logged in and update nav buttons
+    document.addEventListener('DOMContentLoaded', async () => {
+      const SUPABASE_URL = (window.DROZO_CONFIG || {}).url;
+      const SUPABASE_ANON = (window.DROZO_CONFIG || {}).anon;
+      if (!SUPABASE_URL || !SUPABASE_ANON || typeof supabase === 'undefined') return;
 
-      if (apptTimer) clearInterval(apptTimer);
-      apptTimer = setInterval(() => {
-        loadAppointment();
-        loadDispatchedDocuments();
-      }, 3000);
-    }
+      const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+      const { data } = await sb.auth.getSession();
+      const user = data && data.session && data.session.user;
+      const active = localStorage.getItem('drozo_active_session');
 
-    async function handleLogout() {
-      try { await sb.auth.signOut(); } catch (_) {}
-      localStorage.removeItem('drozo_active_session');
-      sessionStorage.clear();
-      window.location.reload();
-    }
-
-    function focusSection(id) {
-      const el = $(id);
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-
-    // --- APPOINTMENTS SYNC ---
-    async function loadAppointment() {
-      if (!me) return;
-      try {
-        const { data, error } = await sb.from('appointments').select('*').eq('patient_id', me.id).order('created_at', { ascending: false }).limit(1);
-        if (error) throw error;
-        currentAppt = (data && data[0]) || null;
-        renderAppointmentCard();
-      } catch (_) {}
-    }
-
-    function renderAppointmentCard() {
-      const container = $('appointmentContainer');
-      const badge = $('appointmentStatusBadge');
-      if (!container) return;
-
-      if (!currentAppt || currentAppt.status === 'CANCELLED' || currentAppt.status === 'COMPLETED') {
-        badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-sand text-charcoal';
-        badge.textContent = 'No Active Session';
-        renderBookingForm();
-        return;
-      }
-
-      const a = currentAppt;
-      const isLive = !!a.meeting_started_at && a.status === 'CONFIRMED';
-      const channelLabel = a.channel === 'video' ? '🎥 Jitsi Video Call' : '🎮 Discord Voice Chat';
-
-      if (isLive) {
-        badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-rose-600 text-white animate-pulse';
-        badge.textContent = '● LIVE MEETING IN PROGRESS';
-        container.innerHTML = `
-          <div class="p-5 rounded-2xl bg-rose-50 border border-rose-200 space-y-4">
-            <div class="flex justify-between items-start">
-              <div>
-                <h4 class="font-extrabold text-charcoal text-base">Your Session is Live!</h4>
-                <p class="text-xs text-rose-800 font-semibold mt-0.5">The host has opened your room on ${channelLabel}.</p>
-                <div class="text-xs text-charcoal-muted mt-1">Slot: ${escapeHtml(a.slot_label)}</div>
-              </div>
-            </div>
-            <button type="button" onclick="joinMeetingRoom()" class="w-full py-3.5 bg-rose-600 hover:bg-rose-700 text-white font-extrabold rounded-xl transition shadow-lg flex items-center justify-center gap-2">
-              <span>🚀</span> Join ${channelLabel} Now
-            </button>
-          </div>
-        `;
-        return;
-      }
-
-      const statusMap = {
-        PENDING: { label: 'Awaiting Therapist', color: 'bg-amber-100 text-amber-800 border-amber-300' },
-        CLAIMED: { label: 'Therapist Assigned', color: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
-        CONFIRMED: { label: 'Confirmed (Awaiting Host Start)', color: 'bg-sky-100 text-sky-800 border-sky-300' },
-      };
-      const st = statusMap[a.status] || { label: a.status, color: 'bg-sand text-charcoal' };
-      badge.className = `px-3 py-1 rounded-full text-xs font-bold ${st.color}`;
-      badge.textContent = st.label;
-
-      container.innerHTML = `
-        <div class="p-5 rounded-2xl bg-sand border border-sand-dark space-y-3">
-          <div class="flex justify-between items-start">
-            <div>
-              <h4 class="font-extrabold text-charcoal text-base">Cognitive & Mindfulness Reframing</h4>
-              <p class="text-xs text-charcoal-muted mt-1">Preferred Time: <strong class="text-charcoal">${escapeHtml(a.slot_label)}</strong></p>
-              <div class="text-xs text-primary font-bold mt-1">Locked Channel: ${channelLabel}</div>
-            </div>
-            <button type="button" onclick="cancelCurrentAppt()" class="text-xs text-rose-600 hover:underline font-bold">
-              Cancel
-            </button>
-          </div>
-          <div class="p-3 bg-white rounded-xl border border-sand-dark text-xs text-charcoal-muted">
-            ℹ️ This page automatically refreshes every 3 seconds. When your host starts the session, your join button will illuminate here.
-          </div>
-        </div>
-      `;
-    }
-
-    function renderBookingForm() {
-      const container = $('appointmentContainer');
-      const tomorrow = new Date(Date.now() + 86400000);
-      tomorrow.setHours(16, 0, 0, 0);
-      const defaultTime = tomorrow.toISOString().slice(0, 16);
-
-      container.innerHTML = `
-        <form onsubmit="handleBookAppointment(event)" class="space-y-4">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-xs font-bold uppercase text-charcoal-muted mb-1">Select Date & Time</label>
-              <input type="datetime-local" id="bookDateTime" required value="${defaultTime}" class="w-full px-3 py-2 text-xs rounded-xl border border-sand-dark focus:outline-none focus:border-primary" />
-            </div>
-            <div>
-              <label class="block text-xs font-bold uppercase text-charcoal-muted mb-1">Select Channel (Locked Once Chosen)</label>
-              <div class="grid grid-cols-2 gap-2">
-                <button type="button" id="btnChDiscord" onclick="setBookingChannel('discord')" class="py-2 px-3 text-xs font-bold rounded-xl border border-primary bg-primary/10 text-primary transition">
-                  🎮 Discord Voice
-                </button>
-                <button type="button" id="btnChVideo" onclick="setBookingChannel('video')" class="py-2 px-3 text-xs font-bold rounded-xl border border-sand-dark bg-white text-charcoal-muted transition">
-                  🎥 Jitsi Video
-                </button>
-              </div>
-            </div>
-          </div>
-          <button type="submit" class="w-full py-3 bg-primary hover:bg-primary-dark text-white font-bold text-xs rounded-xl transition shadow">
-            📅 Confirm & Request Session Slot
-          </button>
-        </form>
-      `;
-    }
-
-    function setBookingChannel(ch) {
-      selectedBookingChannel = ch;
-      if (ch === 'discord') {
-        $('btnChDiscord').className = 'py-2 px-3 text-xs font-bold rounded-xl border border-primary bg-primary/10 text-primary transition';
-        $('btnChVideo').className = 'py-2 px-3 text-xs font-bold rounded-xl border border-sand-dark bg-white text-charcoal-muted transition';
-      } else {
-        $('btnChVideo').className = 'py-2 px-3 text-xs font-bold rounded-xl border border-primary bg-primary/10 text-primary transition';
-        $('btnChDiscord').className = 'py-2 px-3 text-xs font-bold rounded-xl border border-sand-dark bg-white text-charcoal-muted transition';
-      }
-    }
-
-    async function handleBookAppointment(e) {
-      e.preventDefault();
-      const when = $('bookDateTime').value;
-      if (!when) return;
-      const slotLabel = new Date(when).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
-
-      const { error } = await sb.from('appointments').insert({
-        patient_id: me.id,
-        channel: selectedBookingChannel,
-        slot_label: slotLabel,
-        status: 'PENDING'
-      });
-
-      if (error) {
-        alert('Could not book appointment: ' + errMsg(error));
-      } else {
-        alert('Appointment requested! A clinical team member will confirm your slot.');
-        loadAppointment();
-      }
-    }
-
-    async function cancelCurrentAppt() {
-      if (!currentAppt || !confirm('Are you sure you want to cancel this session?')) return;
-      await sb.from('appointments').update({ status: 'CANCELLED' }).eq('id', currentAppt.id);
-      loadAppointment();
-    }
-
-    function joinMeetingRoom() {
-      if (!currentAppt) return;
-      const url = currentAppt.channel === 'video' ? `https://meet.jit.si/drozo-${currentAppt.id}` : DISCORD_INVITE_URL;
-      window.open(url, '_blank');
-    }
-
-    // --- CLINICAL DOCUMENTS SYNC ---
-    async function loadDispatchedDocuments() {
-      if (!me) return;
-      const list = $('clinicalDocsList');
-      const count = $('clinicalDocCount');
-      if (!list) return;
-
-      const { data, error } = await sb.from('clinical_docs').select('*').eq('patient_id', me.id).order('created_at', { ascending: false });
-      if (error || !data || !data.length) {
-        count.textContent = '0 Records';
-        list.innerHTML = '<div class="text-center py-8 text-xs text-charcoal-muted">No clinical documents dispatched yet. Your therapist will post your encounter summaries here after each session.</div>';
-        return;
-      }
-
-      count.textContent = `${data.length} Records`;
-      list.innerHTML = '';
-      data.forEach((doc) => {
-        const item = document.createElement('div');
-        item.className = 'p-4 rounded-2xl bg-sand border border-sand-dark flex justify-between items-center gap-3';
-        item.innerHTML = `
-          <div>
-            <h4 class="font-bold text-xs sm:text-sm text-charcoal">${escapeHtml(doc.category)}</h4>
-            <p class="text-[11px] text-charcoal-muted mt-0.5">Dispatched by <strong>${escapeHtml(doc.therapist)}</strong> • ${new Date(doc.created_at).toLocaleDateString()}</p>
-          </div>
-          <button type="button" class="px-3 py-1.5 bg-white hover:bg-sand-dark text-primary border border-sand-dark rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1">
-            <span>📄</span> View PDF
-          </button>
-        `;
-        item.querySelector('button').onclick = () => renderPDFDocument(doc.patient_label || me.email, doc.category, doc.therapist, doc.notes, doc.actions);
-        list.appendChild(item);
-      });
-    }
-
-    function renderPDFDocument(patient, category, therapist, notes, actions) {
-      const e = escapeHtml;
-      const date = new Date().toLocaleDateString('en-US');
-      const html = `
-        <!DOCTYPE html><html><head><meta charset="utf-8"><title>Clinical Encounter - ${e(patient)}</title>
-        <style>
-          body { font-family: 'Helvetica Neue', Arial, sans-serif; padding: 40px; color: #1B2A3D; }
-          .header { border-bottom: 2px solid #2D6A4F; padding-bottom: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end; }
-          .logo { font-size: 24px; font-weight: 800; color: #2D6A4F; }
-          .table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
-          .table td { padding: 10px; border: 1px solid #E5DDCF; font-size: 13px; }
-          .table td:nth-child(odd) { font-weight: bold; background: #FAF7F2; width: 25%; }
-          .content { line-height: 1.8; font-size: 14px; }
-          .signature { margin-top: 40px; font-family: 'Brush Script MT', cursive; font-size: 28px; }
-        </style></head><body>
-          <div class="header"><div class="logo">Drozo Therapy</div><div>Official Clinical Record</div></div>
-          <table class="table">
-            <tr><td>Patient Reference</td><td>${e(patient)}</td><td>Date</td><td>${e(date)}</td></tr>
-            <tr><td>Therapist Provider</td><td>${e(therapist)}</td><td>Diagnostic Category</td><td>${e(category)}</td></tr>
-          </table>
-          <div class="content">
-            <h3>Clinical Encounter Breakdown</h3><p>${e(notes)}</p>
-            <h3>Prescribed Action Items</h3><p>${e(actions)}</p>
-          </div>
-          <div class="signature">Electronically Signed: ${e(therapist)}</div>
-        </body></html>
-      `;
-      const win = window.open('', '_blank');
-      if (win) { win.document.write(html); win.document.close(); win.print(); }
-    }
-
-    // --- SANCTUARY VAULT (IndexedDB) ---
-    function vaultDB() {
-      return new Promise((res, rej) => {
-        const r = indexedDB.open('drozo_vault', 1);
-        r.onupgradeneeded = () => r.result.createObjectStore('files', { keyPath: 'id' });
-        r.onsuccess = () => res(r.result);
-        r.onerror = () => rej(r.error);
-      });
-    }
-
-    async function handleVaultUpload(e) {
-      const files = Array.from(e.target.files || []);
-      if (!files.length || !me) return;
-      const bar = $('vaultUploadBar'), fill = $('vaultUploadFill');
-      bar.classList.remove('hidden');
-      const db = await vaultDB();
-      let done = 0;
-
-      for (const f of files) {
-        const tx = db.transaction('files', 'readwrite');
-        tx.objectStore('files').put({
-          id: Date.now() + '_' + Math.random().toString(36).slice(2),
-          owner: me.email,
-          name: f.name,
-          size: f.size,
-          added: new Date().toISOString(),
-          blob: f
-        });
-        done++;
-        fill.style.width = Math.round(done / files.length * 100) + '%';
-      }
-      setTimeout(() => { bar.classList.add('hidden'); fill.style.width = '0%'; }, 500);
-      loadCloudVaultFiles();
-    }
-
-    async function loadCloudVaultFiles() {
-      const list = $('vaultFileList');
-      if (!list || !me) return;
-      const db = await vaultDB();
-      const tx = db.transaction('files', 'readonly');
-      const req = tx.objectStore('files').getAll();
-      req.onsuccess = () => {
-        const rows = (req.result || []).filter((r) => r.owner === me.email);
-        list.innerHTML = '';
-        if (!rows.length) {
-          list.innerHTML = '<div class="text-center py-6 text-xs text-charcoal-muted">No vault documents yet. Upload homework or reflections above.</div>';
-          return;
+      if (user || active) {
+        const loginBtn = document.getElementById('navLoginLink');
+        const portalBtn = document.getElementById('navPortalBtn');
+        if (loginBtn) {
+          loginBtn.textContent = 'Sanctuary Portal →';
+          loginBtn.href = 'dashboard.html';
+          loginBtn.classList.add('text-primary', 'font-bold');
         }
-        rows.forEach((r) => {
-          const item = document.createElement('div');
-          item.className = 'p-2.5 rounded-xl bg-sand border border-sand-dark flex justify-between items-center text-xs';
-          item.innerHTML = `
-            <div class="truncate max-w-[180px]">
-              <div class="font-bold text-charcoal truncate">${escapeHtml(r.name)}</div>
-              <div class="text-[10px] text-charcoal-muted">${(r.size / 1024).toFixed(1)} KB</div>
-            </div>
-            <div class="flex gap-2">
-              <button type="button" class="text-primary hover:underline font-bold text-xs dl-btn">Download</button>
-              <button type="button" class="text-rose-600 hover:underline font-bold text-xs rm-btn">Delete</button>
-            </div>
-          `;
-          item.querySelector('.dl-btn').onclick = () => {
-            const url = URL.createObjectURL(r.blob);
-            const a = document.createElement('a'); a.href = url; a.download = r.name; a.click();
-            setTimeout(() => URL.revokeObjectURL(url), 2000);
-          };
-          item.querySelector('.rm-btn').onclick = async () => {
-            if (confirm('Delete ' + r.name + '?')) {
-              const dbtx = (await vaultDB()).transaction('files', 'readwrite');
-              dbtx.objectStore('files').delete(r.id);
-              dbtx.oncomplete = () => loadCloudVaultFiles();
-            }
-          };
-          list.appendChild(item);
-        });
-      };
-    }
-
-    // --- AI ASSISTANT CHAT ---
-    function toggleAiAssistant(initialMsg) {
-      const drawer = $('aiChatDrawer');
-      drawer.classList.toggle('hidden');
-      if (initialMsg) quickChat(initialMsg);
-    }
-
-    function quickChat(msg) {
-      $('chatInput').value = msg;
-      handleChatSubmit({ preventDefault() {} });
-    }
-
-    function handleChatSubmit(e) {
-      e.preventDefault();
-      const input = $('chatInput');
-      const val = input.value.trim();
-      if (!val) return;
-      appendMsg('You', val, 'user');
-      input.value = '';
-
-      const low = val.toLowerCase();
-      setTimeout(() => {
-        if (/breathe|anxious|panic|relax/.test(low)) {
-          appendMsg('Drozo AI', 'Let us take a slow breath together.<br><div class="w-16 h-16 rounded-full bg-primary/20 border-2 border-primary mx-auto my-3 animate-breathe"></div>Inhale deeply for 4 seconds, hold for 7, and exhale for 8.', 'bot');
-        } else if (/book|session|appointment|schedule/.test(low)) {
-          appendMsg('Drozo AI', 'I can help you reserve a slot! Please use the <strong>Session Appointment</strong> card in your sanctuary to choose Discord voice or Jitsi video.', 'bot');
-        } else if (/suicide|kill|die|harm|crisis/.test(low)) {
-          appendMsg('Drozo AI', '⚠️ If you are feeling overwhelmed or unsafe, please call or text <strong>988</strong> immediately or contact emergency services. We are here to support you, but professional crisis hotlines provide immediate live help 24/7.', 'bot');
-        } else {
-          appendMsg('Drozo AI', 'Thank you for sharing that with me. Acknowledging our emotional state is the foundation of cognitive reframing. Would you like to practice a grounding exercise or review your clinical history?', 'bot');
+        if (portalBtn) {
+          portalBtn.textContent = 'Open Dashboard';
+          portalBtn.href = 'dashboard.html';
         }
-      }, 600);
-    }
-
-    function appendMsg(sender, text, type) {
-      const box = $('chatMessages');
-      const row = document.createElement('div');
-      row.className = `flex gap-2 ${type === 'user' ? 'justify-end' : ''}`;
-      row.innerHTML = type === 'user' 
-        ? `<div class="bg-primary text-white p-3 rounded-2xl max-w-[85%] leading-relaxed">${escapeHtml(text)}</div>`
-        : `<span class="text-base">🤖</span><div class="bg-sand p-3 rounded-2xl max-w-[85%] text-charcoal leading-relaxed">${text}</div>`;
-      box.appendChild(row);
-      box.scrollTop = box.scrollHeight;
-    }
-
-    // --- MOOD CHECKIN ---
-    const MOOD_TEXTS = [
-      'We hear you. It is entirely okay to not be okay right now. Take things one breath at a time.',
-      'Thank you for checking in. A slow, mindful pause can help anchor your energy today.',
-      'Steady days provide great ground for reflection. What is one small thing bringing you peace today?',
-      'Glad your day has some lightness. Keep leaning into what feels nourishing.',
-      'Wonderful to see you feeling grounded and energetic. Celebrate this moment!'
-    ];
-    function handleMoodSelect(i) {
-      $('moodFeedback').innerHTML = `<p class="p-3 rounded-xl bg-sand border border-sand-dark font-medium">${MOOD_TEXTS[i]}</p>`;
-    }
-
-    // --- INTAKE QUIZ ---
-    const QUIZ_TOPICS = ['Stress and anxiety', 'Low mood or burnout', 'Relationship navigation', 'Sleep disturbances', 'Life transition'];
-    const QUIZ_CHANNELS = ['🎮 Discord Voice Chat', '🎥 Jitsi Video Call'];
-    let quizStep = 1;
-    let selectedQuizTopics = [];
-    let selectedQuizChannel = 'discord';
-
-    function openQuiz() { quizStep = 1; renderQuiz(); show('quizModal'); }
-    function closeQuiz() { hide('quizModal'); }
-    function quizBack() { if (quizStep > 1) { quizStep--; renderQuiz(); } else closeQuiz(); }
-    function quizNext() {
-      if (quizStep === 1 && !selectedQuizTopics.length) { alert('Please select at least 1 focus topic.'); return; }
-      if (quizStep < 3) {
-        quizStep++;
-        renderQuiz();
-      } else {
-        closeQuiz();
-        window.location.href = 'auth.html';
       }
-    }
-
-    function renderQuiz() {
-      const bar = $('quizBar');
-      const title = $('quizTitle');
-      const hint = $('quizHint');
-      const body = $('quizBody');
-      bar.style.width = (quizStep / 3 * 100) + '%';
-
-      if (quizStep === 1) {
-        title.textContent = 'What would you like support with?';
-        hint.textContent = 'Select all that apply to guide your practitioner matching.';
-        body.innerHTML = `<div class="grid gap-2 sm:grid-cols-2">${QUIZ_TOPICS.map(t => `
-          <button type="button" onclick="toggleQuizTopic('${t}')" class="p-3 text-xs font-bold rounded-2xl border text-left transition ${selectedQuizTopics.includes(t) ? 'border-primary bg-primary/10 text-primary' : 'border-sand-dark bg-white text-charcoal'}">${t}</button>
-        `).join('')}</div>`;
-      } else if (quizStep === 2) {
-        title.textContent = 'How would you prefer to meet?';
-        hint.textContent = 'You can choose between private Discord voice or high-definition Jitsi video.';
-        body.innerHTML = `
-          <div class="grid gap-3">
-            <button type="button" onclick="selectedQuizChannel = 'discord'; renderQuiz();" class="p-4 rounded-2xl border text-left font-bold text-xs transition ${selectedQuizChannel === 'discord' ? 'border-primary bg-primary/10 text-primary' : 'border-sand-dark bg-white text-charcoal'}">
-              🎮 Discord Voice Chat (Confidential audio with zero camera pressure)
-            </button>
-            <button type="button" onclick="selectedQuizChannel = 'video'; renderQuiz();" class="p-4 rounded-2xl border text-left font-bold text-xs transition ${selectedQuizChannel === 'video' ? 'border-primary bg-primary/10 text-primary' : 'border-sand-dark bg-white text-charcoal'}">
-              🎥 Jitsi Video Call (Face-to-face encrypted telehealth)
-            </button>
-          </div>
-        `;
-      } else {
-        title.textContent = 'You are ready to create your sanctuary.';
-        hint.textContent = 'Next, configure your password and choose your biometric verification.';
-        body.innerHTML = `
-          <div class="p-4 rounded-2xl bg-sand border border-sand-dark text-xs space-y-1.5 text-charcoal">
-            <div><strong>Focus:</strong> ${selectedQuizTopics.join(', ')}</div>
-            <div><strong>Meeting Channel:</strong> ${selectedQuizChannel === 'video' ? 'Jitsi Video' : 'Discord Voice'}</div>
-          </div>
-        `;
-        $('quizNextBtn').textContent = 'Go to Sign Up →';
-      }
-    }
-
-    function toggleQuizTopic(t) {
-      if (selectedQuizTopics.includes(t)) selectedQuizTopics = selectedQuizTopics.filter(x => x !== t);
-      else selectedQuizTopics.push(t);
-      renderQuiz();
-    }
-
-    // --- SECURITY & ID PASS MODALS ---
-    function openSecurityModal() {
-      $('secEmailDisplay').textContent = me.email;
-      show('securityModal');
-    }
-    function closeSecurityModal() { hide('securityModal'); }
-
-    async function handleResetSecurity() {
-      if (!confirm('Reset all security biometrics and re-enroll next time you sign in?')) return;
-      try {
-        await sb.from('profiles').update({ twofa_pref: null }).eq('id', me.id);
-        alert('Biometrics cleared. Please sign in again.');
-        handleLogout();
-      } catch (err) { alert(errMsg(err)); }
-    }
-
-    async function handleChangePassword() {
-      const p = $('newSecPassword').value;
-      if (p.length < 8) { alert('Password must be at least 8 characters.'); return; }
-      const { error } = await sb.auth.updateUser({ password: p });
-      if (error) alert(errMsg(error));
-      else { alert('Password updated successfully!'); closeSecurityModal(); }
-    }
-
-    function openMyIdPassModal() {
-      $('cardUserName').textContent = me.email.split('@')[0];
-      $('cardUserEmail').textContent = me.email;
-      $('cardPassReference').textContent = 'IDP-' + me.id.slice(0, 8).toUpperCase();
-      show('myIdPassModal');
-    }
-    function closeMyIdPassModal() {
-      closeIdCamera();
-      hide('myIdPassModal');
-    }
-
-    async function openIdCameraForCard() {
-      show('idCameraBox');
-      hide('idActionButtons');
-      try {
-        idCaptureScanner = new Html5Qrcode('idCaptureReader');
-        await idCaptureScanner.start({ facingMode: 'user' }, { fps: 10, qrbox: { width: 180, height: 180 } }, () => {}, () => {});
-      } catch (_) { alert('Camera access denied or unavailable.'); closeIdCamera(); }
-    }
-
-    function captureCardPhoto() {
-      const video = document.querySelector('#idCaptureReader video');
-      if (video) {
-        const c = document.createElement('canvas'); c.width = 200; c.height = 200;
-        c.getContext('2d').drawImage(video, 0, 0, 200, 200);
-        const url = c.toDataURL('image/jpeg');
-        $('cardCapturedImage').src = url;
-        show('cardCapturedImage');
-        hide('cardPhotoIcon');
-      }
-      closeIdCamera();
-    }
-
-    async function closeIdCamera() {
-      if (idCaptureScanner) { try { await idCaptureScanner.stop(); } catch (_) {} idCaptureScanner = null; }
-      hide('idCameraBox');
-      show('idActionButtons');
-    }
-
-    function exportDigitalIdCard() {
-      renderPDFDocument(me.email, 'Sanctuary ID Verification', 'Drozo Care Security', 'Hardware-bound ID card pass verification.', 'Confidential identity document.');
-    }
+    });
   </script>
 </body>
 </html>

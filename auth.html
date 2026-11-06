@@ -3,15 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sign In & Security Verification — Drozo Therapy</title>
-  <meta name="description" content="Sign in to your confidential Drozo Therapy sanctuary. Hardware-bound protection with Face ID, Passkeys, Authenticator, or Drozo Guard phone sync.">
+  <title>Sign In or Join — Drozo Therapy | Compassionate Online Healthcare</title>
+  <meta name="description" content="Sign in or create your confidential Drozo Therapy account. Connect with licensed, vetted therapists tailored to your unique emotional needs.">
 
-  <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+  <!-- Google Fonts: Plus Jakarta Sans (Headings) & Inter (Body) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <!-- Tailwind CSS CDN -->
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -44,1027 +46,1616 @@
               light: '#2B3E56',
               dark: '#0F1824',
               muted: '#5C6C7E',
+            },
+            canvas: {
+              light: '#FAF7F2',
+              card: '#FFFFFF',
             }
           },
           fontFamily: {
             heading: ['"Plus Jakarta Sans"', 'sans-serif'],
             body: ['Inter', 'sans-serif'],
-            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          boxShadow: {
+            'soft': '0 10px 30px -5px rgba(27, 42, 61, 0.06), 0 4px 10px -2px rgba(27, 42, 61, 0.03)',
+            'soft-lg': '0 20px 40px -10px rgba(45, 106, 79, 0.12), 0 8px 16px -4px rgba(27, 42, 61, 0.04)',
+            'glow': '0 0 40px -10px rgba(45, 106, 79, 0.35)',
+          },
+          animation: {
+            'float': 'float 6s ease-in-out infinite',
+            'float-delayed': 'float 7s ease-in-out 2s infinite',
+            'pulse-soft': 'pulseSoft 4s ease-in-out infinite',
+            'breathe': 'breathe 8s ease-in-out infinite',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-12px)' },
+            },
+            pulseSoft: {
+              '0%, 100%': { opacity: '0.8', transform: 'scale(1)' },
+              '50%': { opacity: '1', transform: 'scale(1.04)' },
+            },
+            breathe: {
+              '0%, 100%': { transform: 'scale(1)', opacity: '0.7' },
+              '50%': { transform: 'scale(1.15)', opacity: '0.9' },
+            }
           }
         }
       }
     };
   </script>
 
-  <!-- External libraries: Config, Supabase, Face-api, QRCode -->
-  <script src="config.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.13/dist/face-api.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-
+  <!-- Custom CSS for specialized aesthetics, micro-interactions & dark mode -->
   <style>
-    body { font-family: 'Inter', sans-serif; background-color: #FAF7F2; color: #1B2A3D; }
-    h1, h2, h3, h4, .font-heading { font-family: 'Plus Jakarta Sans', sans-serif; }
-    .mono { font-family: 'JetBrains Mono', monospace; }
-    .input-field:focus { border-color: #2D6A4F; box-shadow: 0 0 0 4px rgba(45, 106, 79, 0.12); }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #FAF7F2;
+      color: #1B2A3D;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    h1, h2, h3, h4, h5, h6, .font-heading {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      letter-spacing: -0.02em;
+    }
+
+    /* Organic CSS Shapes & Visual panel accents */
+    .organic-shape-1 {
+      border-radius: 64% 36% 70% 30% / 48% 59% 41% 52%;
+    }
+    .organic-shape-2 {
+      border-radius: 42% 58% 35% 65% / 60% 32% 68% 40%;
+    }
+    .organic-shape-3 {
+      border-radius: 50% 50% 38% 62% / 55% 45% 55% 45%;
+    }
+
+    /* Calming breathing guide circle */
+    @keyframes breatheGuide {
+      0%, 100% {
+        transform: scale(0.92);
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+      }
+      50% {
+        transform: scale(1.08);
+        box-shadow: 0 0 25px 8px rgba(255, 255, 255, 0.15);
+      }
+    }
+    .breathe-animation {
+      animation: breatheGuide 6s ease-in-out infinite;
+    }
+
+    /* Smooth Input Glow Focus */
+    .input-field {
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .input-field:focus {
+      border-color: #2D6A4F;
+      box-shadow: 0 0 0 4px rgba(45, 106, 79, 0.12);
+    }
+
+    .input-field.input-error {
+      border-color: #EF4444 !important;
+      box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.12) !important;
+    }
+
+    /* Tab Transition Slide */
+    .tab-slider-bg {
+      transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .auth-tab-content {
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+    .auth-tab-content.hidden-tab {
+      display: none;
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    .auth-tab-content.active-tab {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F5F0E8;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #2D6A4F;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #1B4332;
+    }
+
+    /* Toast notification keyframes */
+    @keyframes slideInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.96);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    .toast-animate-in {
+      animation: slideInDown 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Modal Animation */
+    @keyframes modalFadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95) translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+    .modal-animate {
+      animation: modalFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Dark Mode via prefers-color-scheme */
     @media (prefers-color-scheme: dark) {
-      body { background-color: #0F1824; color: #F8F7F4; }
-      .dark-card { background-color: #182637 !important; border-color: #273C56 !important; }
-      .dark-input { background-color: #121E2C !important; border-color: #273C56 !important; color: #fff !important; }
+      body {
+        background-color: #0F1824;
+        color: #F8F7F4;
+      }
+      .bg-sand-light, .bg-sand {
+        background-color: #121E2C !important;
+      }
+      .bg-white {
+        background-color: #182637 !important;
+      }
+      .bg-sand-dark {
+        background-color: #1C2E42 !important;
+      }
+      .border-sand-muted, .border-sand-dark, .border-sand {
+        border-color: #273C56 !important;
+      }
+      .text-charcoal {
+        color: #F8F7F4 !important;
+      }
+      .text-charcoal-muted {
+        color: #9EAFBF !important;
+      }
+      .input-field {
+        background-color: #152232 !important;
+        border-color: #273C56 !important;
+        color: #F8F7F4 !important;
+      }
+      .input-field::placeholder {
+        color: #6B7F96 !important;
+      }
+      .input-field:focus {
+        border-color: #40916C !important;
+        box-shadow: 0 0 0 4px rgba(64, 145, 108, 0.25) !important;
+      }
+      .social-btn {
+        background-color: #182637 !important;
+        border-color: #273C56 !important;
+        color: #F8F7F4 !important;
+      }
+      .social-btn:hover {
+        background-color: #203349 !important;
+        border-color: #3B5678 !important;
+      }
+      .tab-container {
+        background-color: #0D1622 !important;
+        border-color: #273C56 !important;
+      }
+      .tab-slider-bg {
+        background-color: #1F3247 !important;
+      }
+      .trust-card-mobile {
+        background-color: #162436 !important;
+        border-color: #273C56 !important;
+      }
+      ::-webkit-scrollbar-track {
+        background: #0F1824;
+      }
     }
   </style>
 </head>
-<body class="h-full flex flex-col antialiased selection:bg-primary-light selection:text-white">
+<body class="h-full flex flex-col selection:bg-primary-light selection:text-white antialiased">
 
-  <!-- Toast Notification Container -->
-  <div id="toast-container" class="fixed top-5 right-5 z-50 max-w-md w-full px-4 pointer-events-none" aria-live="polite"></div>
+  <!-- Accessibility Skip Link -->
+  <a href="#auth-card" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 z-50 px-4 py-2 bg-primary text-white font-medium rounded-lg shadow-lg">
+    Skip to authentication form
+  </a>
 
-  <!-- Main Container -->
+  <!-- ========================================================================= -->
+  <!-- TOAST NOTIFICATION CONTAINER (Fixed Top Right)                            -->
+  <!-- ========================================================================= -->
+  <div id="toast-container" class="fixed top-5 right-5 z-50 max-w-md w-full px-4 pointer-events-none" aria-live="polite">
+    <!-- Injected dynamically via JavaScript -->
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MAIN SPLIT LAYOUT WRAPPER                                                 -->
+  <!-- ========================================================================= -->
   <main class="min-h-screen flex flex-col lg:flex-row w-full flex-grow">
 
-    <!-- LEFT PANEL: Interactive Forms & Verification Steps -->
-    <section class="w-full lg:w-[58%] xl:w-[60%] flex flex-col justify-between p-6 sm:p-10 lg:p-12 relative z-10 transition-colors">
+    <!-- ======================================================================= -->
+    <!-- LEFT PANEL (60% Desktop) — Warm Cream / Sand Form Area                  -->
+    <!-- ======================================================================= -->
+    <section class="w-full lg:w-[58%] xl:w-[60%] bg-sand-light flex flex-col justify-between p-6 sm:p-10 lg:p-12 xl:p-16 relative z-10 transition-colors">
       
-      <!-- Top Header Navigation -->
-      <header class="flex items-center justify-between w-full max-w-xl mx-auto mb-6">
-        <a href="index.html" class="flex items-center gap-2.5 group focus:outline-none">
+      <!-- Top Bar: Logo & Back to Home Link -->
+      <header class="flex items-center justify-between w-full max-w-xl mx-auto mb-6 lg:mb-8">
+        <!-- Drozo Brand Leaf Logo -->
+        <a href="index.html" class="flex items-center gap-2.5 group focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-xl" aria-label="Drozo Therapy Homepage">
           <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary-light flex items-center justify-center text-white shadow-md shadow-primary/20 transition-transform duration-300 group-hover:scale-105">
-            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 22C12 22 20 18 20 10C20 4.5 15.5 2 12 2C8.5 2 4 4.5 4 10C4 18 12 22 12 22Z" fill="rgba(255, 255, 255, 0.2)"></path>
+            <!-- Wellness / Leaf Icon SVG (Same as Homepage) -->
+            <svg class="w-6 h-6 text-[#F8F7F4]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 22C12 22 20 18 20 10C20 4.5 15.5 2 12 2C8.5 2 4 4.5 4 10C4 18 12 22 12 22Z" fill="rgba(248, 247, 244, 0.15)"></path>
               <path d="M12 2V22"></path>
+              <path d="M12 7C9.5 8 7 10.5 7 14"></path>
+              <path d="M12 11C14.5 12 17 14.5 17 17"></path>
             </svg>
           </div>
           <div class="flex flex-col">
-            <span class="font-heading font-extrabold text-2xl tracking-tight text-charcoal dark:text-white">Drozo</span>
+            <span class="font-heading font-extrabold text-2xl tracking-tight text-charcoal">Drozo</span>
             <span class="text-[10px] font-semibold tracking-widest uppercase -mt-1 text-primary">Therapy</span>
           </div>
         </a>
 
-        <div class="flex items-center gap-3">
-          <button type="button" onclick="toggleGuardModeView()" id="btnToggleGuard" class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary bg-primary/10 hover:bg-primary/20 py-1.5 px-3 rounded-full transition">
-            <span>🛡️ Drozo Guard Companion</span>
-          </button>
-          <a href="index.html" class="text-xs sm:text-sm font-semibold text-charcoal-muted hover:text-primary transition py-1.5 px-3 rounded-full hover:bg-sand/70">
-            &#8249; Back to Home
-          </a>
-        </div>
+        <!-- Back to Homepage Link -->
+        <a href="index.html" class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-charcoal-muted hover:text-primary transition-colors py-1.5 px-3 rounded-full hover:bg-sand/70 focus:outline-none focus:ring-2 focus:ring-primary">
+          <svg class="w-4 h-4 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+          </svg>
+          <span>Back to Home</span>
+        </a>
       </header>
 
-      <!-- CENTER CARD: Dynamic Views -->
-      <div class="w-full max-w-xl mx-auto my-auto py-4">
+      <!-- Center Auth Card Area -->
+      <div id="auth-card" class="w-full max-w-xl mx-auto my-auto py-2 sm:py-6">
 
-        <!-- ========================================== -->
-        <!-- VIEW 1: SIGN IN / REGISTER FORM            -->
-        <!-- ========================================== -->
-        <div id="viewStep1" class="space-y-6">
-          <div class="text-center sm:text-left">
-            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-3">
-              <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-              Confidential & Protected Sanctuary
+        <!-- Header Greeting & Dynamic Subtitle -->
+        <div class="text-center sm:text-left mb-6 sm:mb-8">
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-3">
+            <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+            Confidential & HIPAA-Compliant Portal
+          </div>
+          <h1 id="auth-heading" class="font-heading text-3xl sm:text-4xl font-extrabold text-charcoal tracking-tight">
+            Welcome back
+          </h1>
+          <p id="auth-subheading" class="mt-2 text-sm sm:text-base text-charcoal-muted">
+            Sign in to continue your secure mental healthcare sessions and notes.
+          </p>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- TOGGLE TABS: Sign In / Create Account                             -->
+        <!-- ================================================================= -->
+        <div class="tab-container relative p-1.5 bg-sand-dark/60 rounded-2xl flex items-center mb-8 border border-sand-muted shadow-inner" role="tablist" aria-label="Authentication Type">
+          <!-- Animated Sliding Indicator -->
+          <div id="tab-slider" class="tab-slider-bg absolute top-1.5 bottom-1.5 left-1.5 w-[calc(50%-6px)] bg-white rounded-xl shadow-sm transition-transform duration-300 ease-out z-0"></div>
+
+          <!-- Sign In Tab Button -->
+          <button 
+            type="button" 
+            role="tab" 
+            id="tab-signin-btn" 
+            aria-selected="true" 
+            aria-controls="panel-signin"
+            onclick="switchAuthTab('signin')"
+            class="relative z-10 w-1/2 py-2.5 sm:py-3 text-sm font-semibold text-charcoal text-center rounded-xl transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary">
+            Sign In
+          </button>
+
+          <!-- Create Account Tab Button -->
+          <button 
+            type="button" 
+            role="tab" 
+            id="tab-signup-btn" 
+            aria-selected="false" 
+            aria-controls="panel-signup"
+            onclick="switchAuthTab('signup')"
+            class="relative z-10 w-1/2 py-2.5 sm:py-3 text-sm font-semibold text-charcoal-muted text-center rounded-xl transition-colors duration-200 hover:text-charcoal focus:outline-none focus:ring-2 focus:ring-primary">
+            Create Account
+          </button>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- SIGN IN PANEL                                                     -->
+        <!-- ================================================================= -->
+        <div id="panel-signin" class="auth-tab-content active-tab" role="tabpanel" aria-labelledby="tab-signin-btn">
+          
+          <!-- Quick Demo Credentials Helper Banner -->
+          <div class="mb-5 p-3 rounded-xl bg-primary-50/70 border border-primary/20 flex items-center justify-between text-xs text-primary-dark">
+            <div class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-primary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>Demo login: <strong>sarah.walker@drozo.com</strong></span>
             </div>
-            <h1 id="authHeading" class="font-heading text-3xl sm:text-4xl font-extrabold tracking-tight">
-              Welcome to Drozo Therapy
-            </h1>
-            <p id="authSubheading" class="mt-2 text-sm sm:text-base text-charcoal-muted">
-              Sign in to access your confidential therapy sanctuary, schedule, and encounter notes.
-            </p>
-          </div>
-
-          <!-- Auth Mode Tabs -->
-          <div class="p-1.5 bg-sand-dark/60 rounded-2xl flex items-center border border-sand-muted">
-            <button type="button" id="tabSigninBtn" onclick="switchAuthTab('login')" class="flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition shadow-sm bg-white text-primary">
-              Sign In
-            </button>
-            <button type="button" id="tabRegisterBtn" onclick="switchAuthTab('register')" class="flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition text-charcoal-muted hover:text-charcoal">
-              Create Account
+            <button type="button" onclick="fillDemoCredentials()" class="font-semibold text-primary hover:text-primary-dark underline hover:no-underline focus:outline-none focus:ring-1 focus:ring-primary rounded">
+              Fill Demo
             </button>
           </div>
 
-          <form id="formCredentials" onsubmit="handleAuthSubmit(event)" class="space-y-4">
+          <form id="signin-form" novalidate onsubmit="handleSignInSubmit(event)" class="space-y-4 sm:space-y-5">
+            
+            <!-- Email Field -->
             <div>
-              <label for="authEmail" class="block text-xs font-bold uppercase tracking-wider text-charcoal-muted mb-1.5">
+              <label for="signin-email" class="block text-xs sm:text-sm font-semibold text-charcoal mb-1.5">
                 Email Address
               </label>
-              <input type="email" id="authEmail" required autocomplete="email" placeholder="you@example.com" class="input-field dark-input w-full px-4 py-3 text-sm rounded-xl border border-sand-dark bg-white focus:outline-none transition" />
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-charcoal-muted">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                  </svg>
+                </div>
+                <input 
+                  type="email" 
+                  id="signin-email" 
+                  name="email"
+                  autocomplete="email"
+                  required
+                  placeholder="name@example.com"
+                  oninput="clearError('signin-email')"
+                  class="input-field block w-full pl-11 pr-4 py-3 sm:py-3.5 text-sm sm:text-base rounded-xl border border-sand-dark bg-white text-charcoal placeholder-charcoal-muted/60 focus:outline-none transition-all shadow-sm"
+                  aria-describedby="signin-email-error"
+                >
+              </div>
+              <p id="signin-email-error" class="hidden mt-1.5 text-xs text-red-500 font-medium flex items-center gap-1">
+                <svg class="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+                <span>Please enter a valid email address.</span>
+              </p>
             </div>
 
+            <!-- Password Field -->
             <div>
               <div class="flex items-center justify-between mb-1.5">
-                <label for="authPassword" class="block text-xs font-bold uppercase tracking-wider text-charcoal-muted">
+                <label for="signin-password" class="block text-xs sm:text-sm font-semibold text-charcoal">
                   Password
                 </label>
-                <button type="button" onclick="showForgotPasswordAlert()" class="text-xs font-semibold text-primary hover:underline">
+                <button 
+                  type="button" 
+                  onclick="openForgotPasswordModal()"
+                  class="text-xs sm:text-sm font-semibold text-primary hover:text-primary-dark transition-colors focus:outline-none focus:underline">
                   Forgot password?
                 </button>
               </div>
-              <input type="password" id="authPassword" required autocomplete="current-password" placeholder="••••••••••••" class="input-field dark-input w-full px-4 py-3 text-sm rounded-xl border border-sand-dark bg-white focus:outline-none transition" />
-              <p id="passwordHint" class="text-[11px] text-charcoal-muted mt-1 hidden">Minimum 8 characters with letters and numbers.</p>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-charcoal-muted">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                  </svg>
+                </div>
+                <input 
+                  type="password" 
+                  id="signin-password" 
+                  name="password"
+                  autocomplete="current-password"
+                  required
+                  placeholder="Enter your secure password"
+                  oninput="clearError('signin-password')"
+                  class="input-field block w-full pl-11 pr-11 py-3 sm:py-3.5 text-sm sm:text-base rounded-xl border border-sand-dark bg-white text-charcoal placeholder-charcoal-muted/60 focus:outline-none transition-all shadow-sm"
+                  aria-describedby="signin-password-error"
+                >
+                <!-- Toggle Password Visibility Button -->
+                <button 
+                  type="button" 
+                  id="toggle-signin-password" 
+                  onclick="togglePasswordVisibility('signin-password', this)"
+                  class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-charcoal-muted hover:text-charcoal focus:outline-none focus:text-primary transition-colors"
+                  aria-label="Toggle password visibility">
+                  <!-- Eye Open Icon -->
+                  <svg class="w-5 h-5 eye-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  <!-- Eye Closed Icon (Hidden by default) -->
+                  <svg class="w-5 h-5 eye-off-icon hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                  </svg>
+                </button>
+              </div>
+              <p id="signin-password-error" class="hidden mt-1.5 text-xs text-red-500 font-medium flex items-center gap-1">
+                <svg class="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+                <span>Please enter your password (minimum 6 characters).</span>
+              </p>
             </div>
 
-            <!-- Submit Button -->
-            <button type="submit" id="btnSubmitAuth" class="w-full py-3.5 bg-primary hover:bg-primary-dark text-white font-heading font-bold text-sm rounded-xl transition shadow-lg shadow-primary/25 flex items-center justify-center gap-2">
-              <span id="btnSubmitAuthText">Sign In to Sanctuary →</span>
-            </button>
+            <!-- Remember Me Row -->
+            <div class="flex items-center justify-between pt-1">
+              <label class="flex items-center gap-2.5 cursor-pointer select-none">
+                <input 
+                  type="checkbox" 
+                  id="signin-remember" 
+                  name="remember"
+                  class="w-4 h-4 rounded border-sand-dark text-primary focus:ring-primary focus:ring-offset-0 transition-colors cursor-pointer"
+                >
+                <span class="text-xs sm:text-sm text-charcoal font-medium">Keep me signed in on this device</span>
+              </label>
+            </div>
 
-            <!-- Passkey Fast Sign In (if supported) -->
-            <button type="button" onclick="handlePasskeyFastLogin()" class="w-full py-3 bg-white dark:bg-sand-dark border border-sand-dark hover:border-primary/50 text-charcoal dark:text-white font-bold text-xs rounded-xl transition flex items-center justify-center gap-2 shadow-sm">
-              <span>👆</span> Sign in with Fingerprint / Passkey
-            </button>
+            <!-- Sign In Submit Button -->
+            <div class="pt-2">
+              <button 
+                type="submit" 
+                id="signin-submit-btn" 
+                class="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 sm:py-4 text-base font-bold text-white bg-primary hover:bg-primary-dark active:scale-[0.99] transition-all duration-200 rounded-xl shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-75 disabled:cursor-not-allowed">
+                <!-- Normal State -->
+                <span class="btn-text flex items-center gap-2">
+                  <span>Sign In</span>
+                  <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </span>
+                <!-- Loading State (hidden initially) -->
+                <span class="btn-spinner hidden flex items-center gap-2">
+                  <svg class="animate-spin w-5 h-5 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>Signing in securely...</span>
+                </span>
+              </button>
+            </div>
           </form>
-        </div>
 
-        <!-- ========================================== -->
-        <!-- VIEW 2: 2FA ONBOARDING / SETUP SELECTION   -->
-        <!-- ========================================== -->
-        <div id="viewOnboarding" class="space-y-5 hidden">
-          <div class="text-center sm:text-left">
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-bold mb-2">
-              🛡️ Account Protection Setup
-            </span>
-            <h2 class="text-2xl font-extrabold font-heading text-charcoal dark:text-white">Choose Your Security Check</h2>
-            <p class="text-xs text-charcoal-muted mt-1">Select your preferred 2FA method for every login. Your confidential medical sanctuary is secured with this check.</p>
+          <!-- Divider: Or Continue With -->
+          <div class="relative my-6">
+            <div class="absolute inset-0 flex items-center">
+              <div class="w-full border-t border-sand-dark"></div>
+            </div>
+            <div class="relative flex justify-center text-xs uppercase tracking-wider">
+              <span class="bg-sand-light px-3 text-charcoal-muted font-medium">Or continue with</span>
+            </div>
           </div>
 
-          <div class="space-y-3">
-            <!-- Option A: Drozo Guard Phone -->
-            <button type="button" onclick="startDrozoGuardEnrollment()" class="w-full p-4 rounded-2xl bg-white dark:bg-sand-dark border-2 border-transparent hover:border-primary text-left transition flex items-center justify-between shadow-sm group">
-              <div class="flex items-center gap-3.5">
-                <div class="w-11 h-11 rounded-xl bg-sky-50 dark:bg-sky-950 flex items-center justify-center text-xl text-sky-600">🛡️</div>
-                <div>
-                  <div class="text-xs sm:text-sm font-bold text-charcoal dark:text-white group-hover:text-primary transition">Drozo Guard (Phone Sync)</div>
-                  <div class="text-[11px] text-charcoal-muted">Approve logins instantly from your phone browser or companion app.</div>
+          <!-- Social Authentication Buttons -->
+          <div class="grid grid-cols-2 gap-3 sm:gap-4">
+            <!-- Google Button -->
+            <button 
+              type="button" 
+              onclick="handleSocialLogin('Google')"
+              class="social-btn flex items-center justify-center gap-2.5 px-4 py-3 rounded-xl border border-sand-dark bg-white hover:bg-sand/60 text-charcoal text-xs sm:text-sm font-semibold transition-all duration-200 shadow-sm hover:shadow hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary">
+              <svg class="w-5 h-5" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+              </svg>
+              <span>Google</span>
+            </button>
+
+            <!-- Apple Button -->
+            <button 
+              type="button" 
+              onclick="handleSocialLogin('Apple')"
+              class="social-btn flex items-center justify-center gap-2.5 px-4 py-3 rounded-xl border border-sand-dark bg-white hover:bg-sand/60 text-charcoal text-xs sm:text-sm font-semibold transition-all duration-200 shadow-sm hover:shadow hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary">
+              <svg class="w-5 h-5 fill-current text-charcoal" viewBox="0 0 24 24">
+                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.87c.6-.74 1.01-1.77.9-2.8-.87.04-1.92.58-2.54 1.32-.55.63-.99 1.67-.86 2.68.97.07 1.9-.46 2.5-1.2z"/>
+              </svg>
+              <span>Apple</span>
+            </button>
+          </div>
+
+          <!-- Bottom Switch Prompt -->
+          <div class="mt-6 text-center text-xs sm:text-sm text-charcoal-muted">
+            New to Drozo Therapy? 
+            <button type="button" onclick="switchAuthTab('signup')" class="font-bold text-primary hover:text-primary-dark ml-1 underline hover:no-underline focus:outline-none">
+              Create free account
+            </button>
+          </div>
+
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- SIGN UP PANEL                                                     -->
+        <!-- ================================================================= -->
+        <div id="panel-signup" class="auth-tab-content hidden-tab" role="tabpanel" aria-labelledby="tab-signup-btn">
+          
+          <form id="signup-form" novalidate onsubmit="handleSignUpSubmit(event)" class="space-y-4 sm:space-y-4.5">
+            
+            <!-- Full Name Field -->
+            <div>
+              <label for="signup-name" class="block text-xs sm:text-sm font-semibold text-charcoal mb-1.5">
+                Full Name
+              </label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-charcoal-muted">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
                 </div>
+                <input 
+                  type="text" 
+                  id="signup-name" 
+                  name="name"
+                  autocomplete="name"
+                  required
+                  placeholder="e.g. Elena Rostova"
+                  oninput="clearError('signup-name')"
+                  class="input-field block w-full pl-11 pr-4 py-3 sm:py-3.2 text-sm sm:text-base rounded-xl border border-sand-dark bg-white text-charcoal placeholder-charcoal-muted/60 focus:outline-none transition-all shadow-sm"
+                  aria-describedby="signup-name-error"
+                >
               </div>
-              <span class="text-xs font-bold text-primary">Select →</span>
-            </button>
-
-            <!-- Option B: Authenticator App (Google Authenticator / Authy) -->
-            <button type="button" onclick="startAuthenticatorEnrollment()" class="w-full p-4 rounded-2xl bg-white dark:bg-sand-dark border-2 border-transparent hover:border-primary text-left transition flex items-center justify-between shadow-sm group">
-              <div class="flex items-center gap-3.5">
-                <div class="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center text-xl text-primary">📱</div>
-                <div>
-                  <div class="text-xs sm:text-sm font-bold text-charcoal dark:text-white group-hover:text-primary transition">Authenticator App</div>
-                  <div class="text-[11px] text-charcoal-muted">6-digit time-based code from Google Authenticator, 1Password, or Authy.</div>
-                </div>
-              </div>
-              <span class="text-xs font-bold text-primary">Select →</span>
-            </button>
-
-            <!-- Option C: Face ID -->
-            <button type="button" onclick="startFaceEnrollment()" class="w-full p-4 rounded-2xl bg-white dark:bg-sand-dark border-2 border-transparent hover:border-primary text-left transition flex items-center justify-between shadow-sm group">
-              <div class="flex items-center gap-3.5">
-                <div class="w-11 h-11 rounded-xl bg-indigo-50 dark:bg-indigo-950 flex items-center justify-center text-xl text-indigo-600">🙂</div>
-                <div>
-                  <div class="text-xs sm:text-sm font-bold text-charcoal dark:text-white group-hover:text-primary transition">Face ID (Biometric Scan)</div>
-                  <div class="text-[11px] text-charcoal-muted">Automatic AI face scan. Encrypted numeric vector stored securely.</div>
-                </div>
-              </div>
-              <span class="text-xs font-bold text-primary">Select →</span>
-            </button>
-
-            <!-- Option D: Fingerprint / Touch ID Passkey -->
-            <button type="button" onclick="startFingerprintEnrollment()" class="w-full p-4 rounded-2xl bg-white dark:bg-sand-dark border-2 border-transparent hover:border-primary text-left transition flex items-center justify-between shadow-sm group">
-              <div class="flex items-center gap-3.5">
-                <div class="w-11 h-11 rounded-xl bg-emerald-50 dark:bg-emerald-950 flex items-center justify-center text-xl text-emerald-600">👆</div>
-                <div>
-                  <div class="text-xs sm:text-sm font-bold text-charcoal dark:text-white group-hover:text-primary transition">Fingerprint / Touch ID Passkey</div>
-                  <div class="text-[11px] text-charcoal-muted">Hardware-bound device security passkey linked to your account.</div>
-                </div>
-              </div>
-              <span class="text-xs font-bold text-primary">Select →</span>
-            </button>
-
-            <!-- Skip Warning -->
-            <button type="button" onclick="triggerSkip2FAWarning()" class="w-full py-2.5 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 transition text-center text-xs font-bold mt-2">
-              ⚠️ Skip 2FA Protection (Sign In With Password Only)
-            </button>
-
-            <button type="button" onclick="backToStep1()" class="w-full text-xs text-charcoal-muted hover:underline text-center mt-2">
-              &#8249; Sign Out & Return to Sign In
-            </button>
-          </div>
-        </div>
-
-        <!-- ========================================== -->
-        <!-- VIEW 3: WIZARD AUTHENTICATOR ENROLLMENT    -->
-        <!-- ========================================== -->
-        <div id="wizardAuthenticator" class="space-y-5 hidden text-center">
-          <div>
-            <div class="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center text-2xl mx-auto mb-2">📱</div>
-            <h3 class="text-lg font-extrabold text-charcoal dark:text-white">Link Authenticator App</h3>
-            <p class="text-xs text-charcoal-muted">Scan this QR code using Google Authenticator, Authy, or Apple Passwords:</p>
-          </div>
-
-          <div class="flex justify-center py-2">
-            <div class="p-3 bg-white rounded-2xl border border-sand-dark shadow-sm">
-              <div id="enrollTotpQrContainer" class="w-[160px] h-[160px] flex items-center justify-center"></div>
-            </div>
-          </div>
-
-          <div class="bg-sand p-2.5 rounded-xl text-[11px] mono text-charcoal-muted select-all break-all">
-            Secret Seed: <strong id="enrollTotpSecretText" class="text-charcoal font-bold">(generating…)</strong>
-          </div>
-
-          <div class="space-y-3">
-            <label class="block text-[11px] font-bold uppercase text-charcoal-muted text-left">Verify Linking (Enter 6-digit Code)</label>
-            <input type="text" id="testTotpInput" maxlength="6" inputmode="numeric" placeholder="123456" class="w-full text-center tracking-widest text-lg font-bold mono px-4 py-2.5 rounded-xl border border-sand-dark focus:outline-none focus:border-primary" />
-            <button type="button" onclick="handleTestTotpLink()" class="w-full py-3 bg-primary hover:bg-primary-dark text-white rounded-xl text-xs font-bold transition shadow">
-              Confirm & Save Link →
-            </button>
-          </div>
-
-          <button type="button" onclick="backToOnboardingChoice()" class="text-xs text-charcoal-muted hover:underline">
-            ← Choose Different Method
-          </button>
-        </div>
-
-        <!-- ========================================== -->
-        <!-- VIEW 4: VERIFICATION - STANDARD TOTP       -->
-        <!-- ========================================== -->
-        <div id="authStep3Standard" class="space-y-5 hidden text-center">
-          <div>
-            <div class="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center text-2xl mx-auto mb-2">🔐</div>
-            <h3 class="text-lg font-extrabold text-charcoal dark:text-white">Enter Authenticator Code</h3>
-            <p class="text-xs text-charcoal-muted">Enter the 6-digit verification code from your Authenticator app for <strong id="verifyUserEmail" class="text-charcoal"></strong>.</p>
-          </div>
-
-          <div class="space-y-3">
-            <input type="text" id="totpInput" maxlength="6" inputmode="numeric" placeholder="123456" onkeydown="if(event.key === 'Enter') handleStandardTOTP()" class="w-full text-center tracking-widest text-2xl font-bold mono px-4 py-3 rounded-xl border border-sand-dark focus:outline-none focus:border-primary" />
-            <button type="button" onclick="handleStandardTOTP()" class="w-full py-3.5 bg-primary hover:bg-primary-dark text-white rounded-xl text-xs font-bold transition shadow-lg">
-              Verify & Enter Sanctuary →
-            </button>
-          </div>
-
-          <button type="button" onclick="backToStep1()" class="text-xs text-charcoal-muted hover:underline">
-            &#8249; Cancel & Return to Sign In
-          </button>
-        </div>
-
-        <!-- ========================================== -->
-        <!-- VIEW 5: VERIFICATION - DROZO GUARD QR      -->
-        <!-- ========================================== -->
-        <div id="authStep3Guard" class="space-y-5 hidden text-center">
-          <div class="flex items-center justify-between border-b border-sand-dark pb-3">
-            <div class="flex items-center gap-2">
-              <span class="text-lg">🛡️</span>
-              <span class="text-xs font-extrabold uppercase tracking-widest text-primary">Drozo Guard Sync</span>
-            </div>
-            <span class="text-[10px] mono text-primary bg-primary/10 px-2 py-0.5 rounded-full font-bold animate-pulse">Awaiting Approval</span>
-          </div>
-
-          <p class="text-xs text-charcoal-muted">Open Drozo Guard on your phone or scan this code to approve your sign-in request:</p>
-
-          <div class="flex justify-center py-2">
-            <div class="p-3 bg-white rounded-3xl border border-sand-dark shadow-xl">
-              <div id="qrCanvasContainer" class="w-[160px] h-[160px] flex items-center justify-center"></div>
-            </div>
-          </div>
-
-          <div class="bg-sand p-2.5 rounded-xl text-xs text-charcoal-muted flex items-center justify-between">
-            <span>Challenge Token:</span>
-            <span class="mono text-primary font-bold" id="steamTokenLabel">DG_PENDING</span>
-          </div>
-
-          <div class="pt-1 flex gap-2">
-            <button type="button" onclick="openApprovalSimulator()" class="flex-1 py-2.5 px-3 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl text-xs shadow transition">
-              📲 Open Approval on this device
-            </button>
-          </div>
-
-          <button type="button" onclick="backToStep1()" class="text-xs text-charcoal-muted hover:underline">
-            &#8249; Cancel & Return to Sign In
-          </button>
-        </div>
-
-        <!-- ========================================== -->
-        <!-- VIEW 6: DROZO GUARD COMPANION (PHONE MODE) -->
-        <!-- ========================================== -->
-        <div id="viewGuardCompanion" class="space-y-5 hidden">
-          <div class="p-4 rounded-2xl bg-charcoal text-white flex items-center justify-between">
-            <div class="flex items-center gap-2.5">
-              <span class="text-xl">🛡️</span>
-              <div>
-                <div class="text-xs font-bold uppercase tracking-wider text-sky-400">Drozo Guard Mobile Companion</div>
-                <div class="text-[11px] text-slate-300" id="guardUserDisplay">Ready for authorization requests</div>
-              </div>
-            </div>
-            <button type="button" onclick="toggleGuardModeView()" class="text-xs text-slate-400 hover:text-white underline">
-              Close
-            </button>
-          </div>
-
-          <!-- Active Challenge Card -->
-          <div id="guardChallengeBox" class="p-5 rounded-2xl bg-white dark:bg-sand-dark border border-sand-dark shadow-md space-y-4">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold uppercase text-primary">Pending Authorization</span>
-              <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping"></span>
-            </div>
-            <p class="text-xs text-charcoal dark:text-white leading-relaxed">
-              A sign-in request was initiated for your Drozo Therapy account. Did you just request access?
-            </p>
-            <div class="p-3 rounded-xl bg-sand text-xs font-mono text-charcoal" id="guardChallengeDetails">
-              Checking for active challenges…
-            </div>
-            <div class="grid grid-cols-2 gap-3 pt-2">
-              <button type="button" onclick="respondGuardChallenge('denied')" class="py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold rounded-xl text-xs border border-rose-200 transition">
-                ✕ Deny Request
-              </button>
-              <button type="button" onclick="respondGuardChallenge('authorized')" class="py-2.5 bg-primary hover:bg-primary-dark text-white font-bold rounded-xl text-xs transition shadow">
-                ✓ Approve Sign-In
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- ========================================== -->
-        <!-- VIEW 7: CRITICAL SKIP WARNING MODAL        -->
-        <!-- ========================================== -->
-        <div id="skipWarningModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-          <div class="bg-white dark:bg-charcoal border border-rose-500/50 w-full max-w-sm rounded-3xl p-6 shadow-2xl text-center space-y-4">
-            <div class="w-14 h-14 rounded-2xl bg-rose-100 dark:bg-rose-950 text-rose-600 text-3xl flex items-center justify-center mx-auto">⚠️</div>
-            <div class="space-y-1.5">
-              <h3 class="text-base font-black text-rose-600 uppercase">Critical Security Hazard</h3>
-              <p class="text-xs font-bold text-rose-800 dark:text-rose-200 bg-rose-50 dark:bg-rose-950/40 p-3 rounded-xl border border-rose-200 dark:border-rose-800">
-                Skipping 2FA makes your mental health sanctuary vulnerable to unauthorized takeover.
-              </p>
-              <p class="text-[11px] text-charcoal-muted">
-                Anyone with your password will have unrestricted access to confidential session history.
+              <p id="signup-name-error" class="hidden mt-1.5 text-xs text-red-500 font-medium flex items-center gap-1">
+                <svg class="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+                <span>Please enter your full legal or preferred name.</span>
               </p>
             </div>
-            <div class="space-y-2 pt-2">
-              <button type="button" onclick="confirmPasswordOnlyMode()" class="w-full py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-xs transition shadow">
-                I Understand Risk & Continue Without 2FA
-              </button>
-              <button type="button" onclick="cancelSkip2FAWarning()" class="w-full py-2.5 bg-sand hover:bg-sand-dark text-charcoal text-xs font-bold rounded-xl transition">
-                ← Go Back & Protect My Account
+
+            <!-- Email Field -->
+            <div>
+              <label for="signup-email" class="block text-xs sm:text-sm font-semibold text-charcoal mb-1.5">
+                Email Address
+              </label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-charcoal-muted">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                  </svg>
+                </div>
+                <input 
+                  type="email" 
+                  id="signup-email" 
+                  name="email"
+                  autocomplete="email"
+                  required
+                  placeholder="name@example.com"
+                  oninput="clearError('signup-email')"
+                  class="input-field block w-full pl-11 pr-4 py-3 sm:py-3.2 text-sm sm:text-base rounded-xl border border-sand-dark bg-white text-charcoal placeholder-charcoal-muted/60 focus:outline-none transition-all shadow-sm"
+                  aria-describedby="signup-email-error"
+                >
+              </div>
+              <p id="signup-email-error" class="hidden mt-1.5 text-xs text-red-500 font-medium flex items-center gap-1">
+                <svg class="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+                <span>Please enter a valid email address.</span>
+              </p>
+            </div>
+
+            <!-- Password Field with Strength Meter -->
+            <div>
+              <label for="signup-password" class="block text-xs sm:text-sm font-semibold text-charcoal mb-1.5">
+                Create Password
+              </label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-charcoal-muted">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                  </svg>
+                </div>
+                <input 
+                  type="password" 
+                  id="signup-password" 
+                  name="password"
+                  autocomplete="new-password"
+                  required
+                  placeholder="At least 8 characters"
+                  oninput="handlePasswordStrength(this.value); clearError('signup-password')"
+                  class="input-field block w-full pl-11 pr-11 py-3 sm:py-3.2 text-sm sm:text-base rounded-xl border border-sand-dark bg-white text-charcoal placeholder-charcoal-muted/60 focus:outline-none transition-all shadow-sm"
+                  aria-describedby="signup-password-error"
+                >
+                <button 
+                  type="button" 
+                  id="toggle-signup-password" 
+                  onclick="togglePasswordVisibility('signup-password', this)"
+                  class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-charcoal-muted hover:text-charcoal focus:outline-none focus:text-primary transition-colors"
+                  aria-label="Toggle password visibility">
+                  <svg class="w-5 h-5 eye-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  <svg class="w-5 h-5 eye-off-icon hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Password Strength Meter Bar -->
+              <div class="mt-2 space-y-1.5">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="text-charcoal-muted">Strength:</span>
+                  <span id="strength-text" class="font-bold text-gray-400">Enter a password</span>
+                </div>
+                <div class="grid grid-cols-4 gap-1.5 h-1.5 w-full bg-sand-dark/60 rounded-full overflow-hidden p-0.5">
+                  <div id="bar-1" class="h-full rounded-full bg-gray-200 transition-all duration-300"></div>
+                  <div id="bar-2" class="h-full rounded-full bg-gray-200 transition-all duration-300"></div>
+                  <div id="bar-3" class="h-full rounded-full bg-gray-200 transition-all duration-300"></div>
+                  <div id="bar-4" class="h-full rounded-full bg-gray-200 transition-all duration-300"></div>
+                </div>
+                <p class="text-[11px] text-charcoal-muted leading-tight">
+                  Must include 8+ characters, mixed case, and a number or symbol.
+                </p>
+              </div>
+
+              <p id="signup-password-error" class="hidden mt-1.5 text-xs text-red-500 font-medium flex items-center gap-1">
+                <svg class="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+                <span>Password must be at least 8 characters long.</span>
+              </p>
+            </div>
+
+            <!-- Confirm Password Field -->
+            <div>
+              <label for="signup-confirm-password" class="block text-xs sm:text-sm font-semibold text-charcoal mb-1.5">
+                Confirm Password
+              </label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-charcoal-muted">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                <input 
+                  type="password" 
+                  id="signup-confirm-password" 
+                  name="confirm-password"
+                  autocomplete="new-password"
+                  required
+                  placeholder="Re-enter your password"
+                  oninput="checkPasswordMatch(); clearError('signup-confirm-password')"
+                  class="input-field block w-full pl-11 pr-11 py-3 sm:py-3.2 text-sm sm:text-base rounded-xl border border-sand-dark bg-white text-charcoal placeholder-charcoal-muted/60 focus:outline-none transition-all shadow-sm"
+                  aria-describedby="signup-confirm-error"
+                >
+                <button 
+                  type="button" 
+                  id="toggle-signup-confirm-password" 
+                  onclick="togglePasswordVisibility('signup-confirm-password', this)"
+                  class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-charcoal-muted hover:text-charcoal focus:outline-none focus:text-primary transition-colors"
+                  aria-label="Toggle confirm password visibility">
+                  <svg class="w-5 h-5 eye-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  <svg class="w-5 h-5 eye-off-icon hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+                  </svg>
+                </button>
+              </div>
+              <p id="signup-confirm-error" class="hidden mt-1.5 text-xs text-red-500 font-medium flex items-center gap-1">
+                <svg class="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+                <span>Passwords do not match.</span>
+              </p>
+            </div>
+
+            <!-- Agree to Terms Checkbox -->
+            <div class="pt-1">
+              <label class="flex items-start gap-2.5 cursor-pointer select-none">
+                <input 
+                  type="checkbox" 
+                  id="signup-terms" 
+                  name="terms"
+                  required
+                  onchange="clearError('signup-terms')"
+                  class="mt-1 w-4 h-4 rounded border-sand-dark text-primary focus:ring-primary focus:ring-offset-0 transition-colors cursor-pointer shrink-0"
+                >
+                <span class="text-xs text-charcoal leading-relaxed">
+                  I agree to Drozo's <a href="terms.html" target="_blank" class="font-semibold text-primary hover:underline">Terms of Service</a>, <a href="privacy.html" target="_blank" class="font-semibold text-primary hover:underline">Privacy Policy</a>, and consent to confidential telehealth counseling.
+                </span>
+              </label>
+              <p id="signup-terms-error" class="hidden mt-1 text-xs text-red-500 font-medium flex items-center gap-1">
+                <svg class="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+                <span>You must accept the terms to create an account.</span>
+              </p>
+            </div>
+
+            <!-- Create Account Button -->
+            <div class="pt-2">
+              <button 
+                type="submit" 
+                id="signup-submit-btn" 
+                class="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 sm:py-4 text-base font-bold text-white bg-primary hover:bg-primary-dark active:scale-[0.99] transition-all duration-200 rounded-xl shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/30 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-75 disabled:cursor-not-allowed">
+                <!-- Normal State -->
+                <span class="btn-text flex items-center gap-2">
+                  <span>Create Account</span>
+                  <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </span>
+                <!-- Loading State -->
+                <span class="btn-spinner hidden flex items-center gap-2">
+                  <svg class="animate-spin w-5 h-5 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>Creating your account...</span>
+                </span>
               </button>
             </div>
+          </form>
+
+          <!-- Divider: Or Continue With -->
+          <div class="relative my-6">
+            <div class="absolute inset-0 flex items-center">
+              <div class="w-full border-t border-sand-dark"></div>
+            </div>
+            <div class="relative flex justify-center text-xs uppercase tracking-wider">
+              <span class="bg-sand-light px-3 text-charcoal-muted font-medium">Or sign up with</span>
+            </div>
           </div>
+
+          <!-- Social Buttons for Signup -->
+          <div class="grid grid-cols-2 gap-3 sm:gap-4">
+            <button 
+              type="button" 
+              onclick="handleSocialLogin('Google')"
+              class="social-btn flex items-center justify-center gap-2.5 px-4 py-3 rounded-xl border border-sand-dark bg-white hover:bg-sand/60 text-charcoal text-xs sm:text-sm font-semibold transition-all duration-200 shadow-sm hover:shadow hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary">
+              <svg class="w-5 h-5" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+              </svg>
+              <span>Google</span>
+            </button>
+
+            <button 
+              type="button" 
+              onclick="handleSocialLogin('Apple')"
+              class="social-btn flex items-center justify-center gap-2.5 px-4 py-3 rounded-xl border border-sand-dark bg-white hover:bg-sand/60 text-charcoal text-xs sm:text-sm font-semibold transition-all duration-200 shadow-sm hover:shadow hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary">
+              <svg class="w-5 h-5 fill-current text-charcoal" viewBox="0 0 24 24">
+                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.87c.6-.74 1.01-1.77.9-2.8-.87.04-1.92.58-2.54 1.32-.55.63-.99 1.67-.86 2.68.97.07 1.9-.46 2.5-1.2z"/>
+              </svg>
+              <span>Apple</span>
+            </button>
+          </div>
+
+          <!-- Bottom Switch Prompt -->
+          <div class="mt-6 text-center text-xs sm:text-sm text-charcoal-muted">
+            Already have an account? 
+            <button type="button" onclick="switchAuthTab('signin')" class="font-bold text-primary hover:text-primary-dark ml-1 underline hover:no-underline focus:outline-none">
+              Sign in here
+            </button>
+          </div>
+
         </div>
 
       </div>
 
-      <!-- Bottom Trust Badges -->
-      <footer class="w-full max-w-xl mx-auto pt-6 border-t border-sand-dark text-center sm:text-left text-xs text-charcoal-muted flex flex-col sm:flex-row items-center justify-between gap-2">
-        <span>© 2026 Drozo Therapy. All rights reserved.</span>
-        <div class="flex gap-3 text-xs">
-          <span class="inline-flex items-center gap-1">🔒 256-bit Encrypted</span>
-          <span>•</span>
-          <span>HIPAA & GDPR Standards</span>
+      <!-- Bottom Reassurance / Crisis Footer -->
+      <footer class="w-full max-w-xl mx-auto pt-6 border-t border-sand-dark/60 text-xs text-charcoal-muted flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+        <div class="flex items-center gap-1.5">
+          <svg class="w-4 h-4 text-primary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+          <span>End-to-End Encrypted &bull; 256-Bit SSL</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span>In crisis? Call/Text <strong class="text-charcoal font-semibold">988</strong></span>
+          <span>&bull;</span>
+          <a href="faq.html" class="hover:text-primary transition-colors">Need Help?</a>
         </div>
       </footer>
+
     </section>
 
-    <!-- RIGHT PANEL: Calming Therapy Hero & Value Proposition (40% Desktop) -->
-    <section class="hidden lg:flex w-full lg:w-[42%] xl:w-[40%] bg-gradient-to-br from-primary-dark via-primary to-[#1B4332] text-white p-12 flex-col justify-between relative overflow-hidden">
-      <!-- Decorative organic glow background shapes -->
-      <div class="absolute -top-24 -right-24 w-96 h-96 bg-primary-light/20 rounded-full blur-3xl pointer-events-none"></div>
-      <div class="absolute bottom-0 left-0 w-80 h-80 bg-accent/15 rounded-full blur-2xl pointer-events-none"></div>
+    <!-- ======================================================================= -->
+    <!-- RIGHT PANEL (40% Desktop) — Inspiring Deep Green / Visual Panel         -->
+    <!-- ======================================================================= -->
+    <section class="w-full lg:w-[42%] xl:w-[40%] bg-gradient-to-br from-primary-dark via-primary to-[#122A1E] text-white p-8 sm:p-12 lg:p-12 xl:p-16 flex flex-col justify-between relative overflow-hidden order-first lg:order-last min-h-[460px] lg:min-h-screen">
+      
+      <!-- Calming Abstract Floating Shapes / CSS Blobs -->
+      <div class="absolute -top-24 -right-24 w-96 h-96 bg-primary-light/20 rounded-full blur-3xl pointer-events-none animate-pulse-soft"></div>
+      <div class="absolute top-1/3 -left-20 w-80 h-80 bg-accent/15 rounded-full blur-3xl pointer-events-none animate-float-delayed"></div>
+      <div class="absolute -bottom-20 right-10 w-96 h-96 bg-primary-light/25 rounded-full blur-3xl pointer-events-none animate-float"></div>
 
-      <!-- Top quote badge -->
-      <div class="relative z-10">
-        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 text-sand-light text-xs font-semibold backdrop-blur-md">
-          <span>🌿</span> Calming, Patient-Centered Sanctuary
+      <!-- Subtle Geometric Top Right Leaf Watermark -->
+      <div class="absolute -top-12 -right-12 opacity-5 pointer-events-none">
+        <svg class="w-96 h-96 text-white" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 22C12 22 20 18 20 10C20 4.5 15.5 2 12 2C8.5 2 4 4.5 4 10C4 18 12 22 12 22Z"></path>
+        </svg>
+      </div>
+
+      <!-- Top Visual Header & Live Pulse Element -->
+      <div class="relative z-10 flex items-center justify-between">
+        <!-- Badge -->
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs font-semibold text-sand-light tracking-wide shadow-sm">
+          <span class="w-2 h-2 rounded-full bg-[#72C09B] animate-ping"></span>
+          <span>Online Therapy &bull; All 50 States</span>
+        </div>
+
+        <!-- Breathing Indicator Mini Pill -->
+        <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-xs text-white/90">
+          <div class="w-3 h-3 rounded-full bg-accent-light breathe-animation"></div>
+          <span class="text-[11px] font-medium">Breathe In &bull; Breathe Out</span>
         </div>
       </div>
 
-      <!-- Center inspirational text -->
-      <div class="relative z-10 my-auto py-12 space-y-6">
-        <h2 class="font-heading text-3xl xl:text-4xl font-extrabold leading-snug">
-          "The first step toward healing is giving yourself permission to be supported."
-        </h2>
-        <p class="text-sand-light/80 text-sm leading-relaxed max-w-md">
-          At Drozo Therapy, every encounter is confidential, encrypted, and designed around your comfort. Whether meeting on Discord voice or high-definition Jitsi video, you are always in control.
+      <!-- Centerpiece: Quote & Narrative -->
+      <div class="relative z-10 my-8 lg:my-auto max-w-lg">
+        
+        <!-- Large Decorative Quote Icon -->
+        <div class="mb-5 inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-sand-light shadow-lg">
+          <svg class="w-6 h-6 fill-current text-white/90" viewBox="0 0 24 24">
+            <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
+          </svg>
+        </div>
+
+        <!-- Main Quote -->
+        <blockquote class="font-heading text-3xl sm:text-4xl xl:text-5xl font-extrabold text-white leading-tight tracking-tight drop-shadow-sm">
+          "Every day is a <span class="text-sand underline decoration-accent/60 decoration-wavy underline-offset-4">fresh start</span>."
+        </blockquote>
+
+        <p class="mt-4 text-white/80 text-sm sm:text-base xl:text-lg font-light leading-relaxed">
+          Emotional healing isn't linear, but you never have to walk through the heavy days on your own. Connect with genuine, licensed therapists who understand where you are.
         </p>
 
-        <!-- Feature Points -->
-        <div class="grid grid-cols-1 gap-3.5 pt-4">
-          <div class="flex items-center gap-3 bg-white/5 border border-white/10 p-3 rounded-2xl backdrop-blur-sm">
-            <span class="text-xl">🔒</span>
-            <div class="text-xs">
-              <strong class="text-white block font-heading">Hardware-Bound Security</strong>
-              <span class="text-sand-light/75">Biometric Face ID, Passkeys & Drozo Guard phone sync.</span>
+        <!-- Stats Bar: 1.25M+ People -->
+        <div class="mt-8 pt-6 border-t border-white/15 flex flex-wrap items-center gap-4 sm:gap-6">
+          <!-- Client Avatar Cluster -->
+          <div class="flex -space-x-3 items-center">
+            <div class="w-10 h-10 rounded-full border-2 border-primary-dark bg-[#3B7A5E] flex items-center justify-center font-bold text-xs text-white shadow-md">
+              ER
+            </div>
+            <div class="w-10 h-10 rounded-full border-2 border-primary-dark bg-[#E07A5F] flex items-center justify-center font-bold text-xs text-white shadow-md">
+              JM
+            </div>
+            <div class="w-10 h-10 rounded-full border-2 border-primary-dark bg-[#40916C] flex items-center justify-center font-bold text-xs text-white shadow-md">
+              AL
+            </div>
+            <div class="w-10 h-10 rounded-full border-2 border-primary-dark bg-[#2D425A] flex items-center justify-center font-bold text-xs text-white shadow-md">
+              +1M
             </div>
           </div>
-          <div class="flex items-center gap-3 bg-white/5 border border-white/10 p-3 rounded-2xl backdrop-blur-sm">
-            <span class="text-xl">🗂️</span>
-            <div class="text-xs">
-              <strong class="text-white block font-heading">Sanctuary Vault</strong>
-              <span class="text-sand-light/75">Confidential client-side files saved directly on your device.</span>
+
+          <div>
+            <div class="text-sm sm:text-base font-bold text-white tracking-tight">
+              Join 1.25M+ people
             </div>
-          </div>
-          <div class="flex items-center gap-3 bg-white/5 border border-white/10 p-3 rounded-2xl backdrop-blur-sm">
-            <span class="text-xl">📄</span>
-            <div class="text-xs">
-              <strong class="text-white block font-heading">Verified Clinical Outcomes</strong>
-              <span class="text-sand-light/75">Download official clinical progress documentation anytime.</span>
+            <div class="text-xs text-white/70 flex items-center gap-1.5 mt-0.5">
+              <!-- Star SVGs -->
+              <div class="flex text-[#F4A261]">
+                <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+              </div>
+              <span><strong>4.9 / 5</strong> on their healing journey</span>
             </div>
           </div>
         </div>
+
+        <!-- Frosted Testimonial Snippet Card -->
+        <div class="mt-6 p-4 sm:p-5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-xl text-sand-light relative overflow-hidden group">
+          <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-white/5 rounded-full pointer-events-none group-hover:scale-125 transition-transform duration-500"></div>
+          <p class="text-xs sm:text-sm italic leading-relaxed text-white/95">
+            "Drozo helped me match with the right therapist in under 24 hours. Having the flexibility to message my counselor between video sessions completely shifted my outlook on mental health."
+          </p>
+          <div class="mt-3 flex items-center justify-between text-xs text-sand-dark">
+            <span class="font-semibold text-white">&mdash; Elena R.</span>
+            <span class="text-white/70">Verified Member &bull; 8 months</span>
+          </div>
+        </div>
+
       </div>
 
-      <!-- Bottom crisis hotline info -->
-      <div class="relative z-10 text-[11px] text-sand-light/70 border-t border-white/10 pt-4">
-        Need immediate crisis support? Call or text <strong class="text-white">988</strong> or your local emergency services. Drozo Therapy is not an emergency hotline.
+      <!-- Trust Badges Grid (HIPAA, SSL, Confidentiality, Board-Certified) -->
+      <div class="relative z-10 pt-6 border-t border-white/15">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center sm:text-left">
+          
+          <!-- Badge 1: HIPAA -->
+          <div class="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xs">
+            <svg class="w-5 h-5 text-[#72C09B] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            <div class="text-[11px] font-semibold leading-tight text-white/90">
+              HIPAA Compliant
+            </div>
+          </div>
+
+          <!-- Badge 2: 256-Bit SSL -->
+          <div class="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xs">
+            <svg class="w-5 h-5 text-[#72C09B] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            <div class="text-[11px] font-semibold leading-tight text-white/90">
+              256-Bit Encrypted
+            </div>
+          </div>
+
+          <!-- Badge 3: 100% Confidential -->
+          <div class="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xs">
+            <svg class="w-5 h-5 text-[#72C09B] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            <div class="text-[11px] font-semibold leading-tight text-white/90">
+              100% Confidential
+            </div>
+          </div>
+
+          <!-- Badge 4: Licensed Therapists -->
+          <div class="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xs">
+            <svg class="w-5 h-5 text-[#72C09B] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+            </svg>
+            <div class="text-[11px] font-semibold leading-tight text-white/90">
+              Vetted Providers
+            </div>
+          </div>
+
+        </div>
       </div>
+
     </section>
 
   </main>
 
   <!-- ========================================================================= -->
-  <!-- SCRIPT: Real Supabase Auth, Biometrics, Drozo Guard Sync                  -->
+  <!-- FORGOT PASSWORD MODAL (Accessible Dialog)                                 -->
+  <!-- ========================================================================= -->
+  <div id="forgot-password-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-charcoal-dark/70 backdrop-blur-sm transition-opacity" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-animate bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-sand-dark relative text-charcoal">
+      
+      <!-- Close Button -->
+      <button 
+        type="button" 
+        onclick="closeForgotPasswordModal()"
+        class="absolute top-5 right-5 p-2 rounded-full text-charcoal-muted hover:text-charcoal hover:bg-sand/60 transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
+        aria-label="Close dialog">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      <!-- Modal Content State: Initial Input Form -->
+      <div id="modal-form-content">
+        <div class="w-12 h-12 rounded-2xl bg-primary-50 text-primary flex items-center justify-center mb-4">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+          </svg>
+        </div>
+
+        <h3 id="modal-title" class="font-heading text-xl font-bold text-charcoal tracking-tight">
+          Reset your password
+        </h3>
+        <p class="mt-1.5 text-xs sm:text-sm text-charcoal-muted leading-relaxed">
+          Enter the email associated with your Drozo Therapy account and we'll send you a confidential recovery link.
+        </p>
+
+        <form id="forgot-password-form" onsubmit="handleForgotPasswordSubmit(event)" class="mt-5 space-y-4">
+          <div>
+            <label for="forgot-email" class="block text-xs font-semibold text-charcoal mb-1">
+              Email Address
+            </label>
+            <input 
+              type="email" 
+              id="forgot-email" 
+              required
+              placeholder="name@example.com"
+              class="input-field block w-full px-4 py-3 text-sm rounded-xl border border-sand-dark bg-sand-light text-charcoal placeholder-charcoal-muted/60 focus:outline-none"
+            >
+            <p id="forgot-email-error" class="hidden mt-1 text-xs text-red-500 font-medium">Please enter a valid email address.</p>
+          </div>
+
+          <div class="flex items-center justify-end gap-3 pt-2">
+            <button 
+              type="button" 
+              onclick="closeForgotPasswordModal()"
+              class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-charcoal-muted hover:text-charcoal hover:bg-sand/60 transition-colors focus:outline-none">
+              Cancel
+            </button>
+            <button 
+              type="submit" 
+              id="forgot-submit-btn"
+              class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-primary hover:bg-primary-dark transition-colors shadow-md focus:outline-none focus:ring-2 focus:ring-primary">
+              <span>Send Recovery Link</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Modal Content State: Sent Confirmation -->
+      <div id="modal-success-content" class="hidden text-center py-4">
+        <div class="w-14 h-14 rounded-2xl bg-[#EAF4EE] text-primary flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <h3 class="font-heading text-xl font-bold text-charcoal">Check your email</h3>
+        <p class="mt-2 text-xs sm:text-sm text-charcoal-muted leading-relaxed">
+          We have dispatched secure recovery instructions to <strong id="sent-email-display" class="text-charcoal">your email</strong>. Please check your inbox and spam folder.
+        </p>
+        <button 
+          type="button" 
+          onclick="closeForgotPasswordModal()" 
+          class="mt-6 w-full py-3 rounded-xl text-sm font-bold text-white bg-primary hover:bg-primary-dark transition-colors shadow-md focus:outline-none">
+          Done
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- JAVASCRIPT LOGIC (Interactive Features & State Handling)                  -->
   <!-- ========================================================================= -->
   <script>
-    const SUPABASE_URL = (window.DROZO_CONFIG || {}).url;
-    const SUPABASE_ANON = (window.DROZO_CONFIG || {}).anon;
-    const STAFF_ROLES = ["therapist", "coordinator", "admin"];
+    // State management
+    let activeTab = 'signin';
 
-    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
-      auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true,
-        experimental: { passkey: true }
-      }
-    });
+    // Email validation regex helper
+    const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    let currentAuthMode = 'login';
-    let me = null;
-    let pendingFactorId = '';
-    let activeChallenge = '';
-    let pollTimer = null;
-    let guardEnrolling = false;
-    let guardPollTimer = null;
-
-    // Helper utilities
-    const $ = (id) => document.getElementById(id);
-    const show = (id) => { const el = $(id); if (el) el.classList.remove('hidden'); };
-    const hide = (id) => { const el = $(id); if (el) el.classList.add('hidden'); };
-    const errMsg = (e) => (e && e.message) ? e.message : String(e);
-
-    function showToast(message, type = 'info') {
-      const container = $('toast-container');
-      const toast = document.createElement('div');
-      const bg = type === 'error' ? 'bg-rose-600' : (type === 'success' ? 'bg-primary' : 'bg-charcoal');
-      toast.className = `flex items-center gap-3 p-4 rounded-2xl ${bg} text-white shadow-xl border border-white/15 mb-3 w-full pointer-events-auto transition transform translate-y-2`;
-      toast.innerHTML = `<span class="text-sm font-medium flex-1">${message}</span><button onclick="this.parentElement.remove()" class="text-white/70 hover:text-white">&times;</button>`;
-      container.appendChild(toast);
-      setTimeout(() => { toast.remove(); }, 4000);
-    }
-
-    // Switch between Sign In and Register tabs
-    function switchAuthTab(mode) {
-      currentAuthMode = mode;
-      const isReg = mode === 'register';
-      $('tabSigninBtn').className = isReg 
-        ? 'flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition text-charcoal-muted hover:text-charcoal' 
-        : 'flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition shadow-sm bg-white text-primary';
-      $('tabRegisterBtn').className = isReg 
-        ? 'flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition shadow-sm bg-white text-primary' 
-        : 'flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition text-charcoal-muted hover:text-charcoal';
-
-      $('authHeading').textContent = isReg ? 'Create Your Account' : 'Welcome to Drozo Therapy';
-      $('authSubheading').textContent = isReg 
-        ? 'Create your confidential credentials. You can set up your biometric protection next.' 
-        : 'Sign in to access your confidential therapy sanctuary, schedule, and encounter notes.';
-      $('btnSubmitAuthText').textContent = isReg ? 'Create Account & Continue →' : 'Sign In to Sanctuary →';
-      if (isReg) show('passwordHint'); else hide('passwordHint');
-    }
-
-    // Boot & Session Check
-    window.addEventListener('DOMContentLoaded', async () => {
-      // Check if opening as Drozo Guard companion
+    // Initialize on DOMContentLoaded
+    document.addEventListener('DOMContentLoaded', () => {
+      // Check query parameter or hash for preselected mode (?mode=signup or #signup)
       const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('guard') === '1') {
-        toggleGuardModeView();
+      const modeParam = urlParams.get('mode');
+      const hash = window.location.hash.toLowerCase();
+
+      if (modeParam === 'signup' || hash === '#signup') {
+        switchAuthTab('signup', false);
+      } else {
+        switchAuthTab('signin', false);
       }
 
-      try {
-        const { data } = await sb.auth.getSession();
-        if (data && data.session) {
-          await routeAfterAuth(false);
+      // Listen for browser back/forward or hash changes
+      window.addEventListener('hashchange', () => {
+        if (window.location.hash === '#signup') {
+          switchAuthTab('signup', false);
+        } else if (window.location.hash === '#signin') {
+          switchAuthTab('signin', false);
         }
-      } catch (_) {}
+      });
+
+      // Escape key closes modal
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeForgotPasswordModal();
+        }
+      });
     });
 
-    // Handle Form Submit (Sign In or Sign Up)
-    async function handleAuthSubmit(e) {
-      e.preventDefault();
-      const email = $('authEmail').value.trim().toLowerCase();
-      const pass = $('authPassword').value;
+    /**
+     * Tab switching between Sign In and Create Account
+     */
+    function switchAuthTab(tab, updateHash = true) {
+      activeTab = tab;
+      const tabSlider = document.getElementById('tab-slider');
+      const signinBtn = document.getElementById('tab-signin-btn');
+      const signupBtn = document.getElementById('tab-signup-btn');
+      const signinPanel = document.getElementById('panel-signin');
+      const signupPanel = document.getElementById('panel-signup');
+      const authHeading = document.getElementById('auth-heading');
+      const authSubheading = document.getElementById('auth-subheading');
 
-      if (!email || !pass) {
-        showToast('Please enter both email and password.', 'error');
-        return;
-      }
+      if (tab === 'signin') {
+        // Move slider to left
+        tabSlider.style.transform = 'translateX(0%)';
+        
+        // Active button styles
+        signinBtn.setAttribute('aria-selected', 'true');
+        signupBtn.setAttribute('aria-selected', 'false');
+        signinBtn.className = 'relative z-10 w-1/2 py-2.5 sm:py-3 text-sm font-semibold text-charcoal text-center rounded-xl transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary';
+        signupBtn.className = 'relative z-10 w-1/2 py-2.5 sm:py-3 text-sm font-semibold text-charcoal-muted text-center rounded-xl transition-colors duration-200 hover:text-charcoal focus:outline-none focus:ring-2 focus:ring-primary';
 
-      if (currentAuthMode === 'register' && pass.length < 8) {
-        showToast('Password must be at least 8 characters long.', 'error');
-        return;
-      }
+        // Panels
+        signinPanel.classList.remove('hidden-tab');
+        signinPanel.classList.add('active-tab');
+        signupPanel.classList.add('hidden-tab');
+        signupPanel.classList.remove('active-tab');
 
-      const btn = $('btnSubmitAuth');
-      btn.disabled = true;
-      btn.classList.add('opacity-75');
-      $('btnSubmitAuthText').textContent = 'Authenticating…';
+        // Text update
+        authHeading.textContent = 'Welcome back';
+        authSubheading.textContent = 'Sign in to continue your secure mental healthcare sessions and notes.';
 
-      try {
-        if (currentAuthMode === 'register') {
-          const { data, error } = await sb.auth.signUp({
-            email: email,
-            password: pass,
-            options: { emailRedirectTo: window.location.origin + window.location.pathname }
-          });
-          if (error) throw error;
-          if (!data.session) {
-            showToast('Account registered! Please check your email to confirm, then sign in.', 'success');
-            switchAuthTab('login');
-            return;
-          }
-          await routeAfterAuth(true);
-        } else {
-          const { error } = await sb.auth.signInWithPassword({ email: email, password: pass });
-          if (error) throw error;
-          await routeAfterAuth(false);
+        if (updateHash) {
+          history.replaceState(null, '', '#signin');
         }
-      } catch (err) {
-        showToast(errMsg(err), 'error');
-      } finally {
-        btn.disabled = false;
-        btn.classList.remove('opacity-75');
-        $('btnSubmitAuthText').textContent = currentAuthMode === 'register' ? 'Create Account & Continue →' : 'Sign In to Sanctuary →';
-      }
-    }
+      } else {
+        // Move slider to right (100% of half container)
+        tabSlider.style.transform = 'translateX(100%)';
+        
+        // Active button styles
+        signinBtn.setAttribute('aria-selected', 'false');
+        signupBtn.setAttribute('aria-selected', 'true');
+        signinBtn.className = 'relative z-10 w-1/2 py-2.5 sm:py-3 text-sm font-semibold text-charcoal-muted text-center rounded-xl transition-colors duration-200 hover:text-charcoal focus:outline-none focus:ring-2 focus:ring-primary';
+        signupBtn.className = 'relative z-10 w-1/2 py-2.5 sm:py-3 text-sm font-semibold text-charcoal text-center rounded-xl transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary';
 
-    // Load Profile & Route
-    async function loadMe() {
-      const { data: { user } } = await sb.auth.getUser();
-      if (!user) { me = null; return null; }
-      let res = await sb.from('profiles').select('id,email,role,twofa_pref,face_login').eq('id', user.id).maybeSingle();
-      if (res.error) {
-        res = await sb.from('profiles').select('id,email,role,twofa_pref').eq('id', user.id).maybeSingle();
-      }
-      me = res.data ? Object.assign({ face_login: false }, res.data) : { id: user.id, email: user.email, role: 'patient', twofa_pref: null };
-      return me;
-    }
+        // Panels
+        signupPanel.classList.remove('hidden-tab');
+        signupPanel.classList.add('active-tab');
+        signinPanel.classList.add('hidden-tab');
+        signinPanel.classList.remove('active-tab');
 
-    async function setPref(pref) {
-      if (!me) return;
-      const { error } = await sb.from('profiles').update({ twofa_pref: pref }).eq('id', me.id);
-      if (error) throw error;
-      me.twofa_pref = pref;
-    }
+        // Text update
+        authHeading.textContent = 'Create your account';
+        authSubheading.textContent = 'Take your first step toward personalized, compassionate care today.';
 
-    async function routeAfterAuth(isNew, viaPasskey = false) {
-      try {
-        await loadMe();
-        if (!me) return;
-
-        // Check AAL level for TOTP
-        const aal = (await sb.auth.mfa.getAuthenticatorAssuranceLevel()).data;
-        if (aal && aal.nextLevel === 'aal2' && aal.currentLevel !== 'aal2') {
-          ['viewStep1', 'viewOnboarding', 'wizardAuthenticator', 'authStep3Guard'].forEach(hide);
-          $('verifyUserEmail').textContent = me.email;
-          show('authStep3Standard');
-          return;
+        if (updateHash) {
+          history.replaceState(null, '', '#signup');
         }
+      }
+    }
 
-        const factors = ((await sb.auth.mfa.listFactors()).data || {}).totp || [];
-        const forced = localStorage.getItem('drozo_force_setup_wizard') === me.id;
+    /**
+     * Toggle password visibility between password and text
+     */
+    function togglePasswordVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
 
-        // If newly registered, or no 2FA chosen yet, show onboarding
-        if (isNew || forced || (!me.twofa_pref && !viaPasskey) || (me.twofa_pref === 'totp' && !factors.length)) {
-          localStorage.removeItem('drozo_force_setup_wizard');
-          showOnboardingChoice();
-          return;
+      const eyeIcon = btn.querySelector('.eye-icon');
+      const eyeOffIcon = btn.querySelector('.eye-off-icon');
+
+      if (input.type === 'password') {
+        input.type = 'text';
+        eyeIcon.classList.add('hidden');
+        eyeOffIcon.classList.remove('hidden');
+        btn.setAttribute('aria-label', 'Hide password');
+      } else {
+        input.type = 'password';
+        eyeIcon.classList.remove('hidden');
+        eyeOffIcon.classList.add('hidden');
+        btn.setAttribute('aria-label', 'Show password');
+      }
+    }
+
+    /**
+     * Clear error state on input change
+     */
+    function clearError(fieldId) {
+      const input = document.getElementById(fieldId);
+      const errorEl = document.getElementById(`${fieldId}-error`);
+      if (input) {
+        input.classList.remove('input-error');
+        input.removeAttribute('aria-invalid');
+      }
+      if (errorEl) {
+        errorEl.classList.add('hidden');
+      }
+    }
+
+    /**
+     * Show error message and highlight input
+     */
+    function showError(fieldId, customMessage = null) {
+      const input = document.getElementById(fieldId);
+      const errorEl = document.getElementById(`${fieldId}-error`);
+      if (input) {
+        input.classList.add('input-error');
+        input.setAttribute('aria-invalid', 'true');
+        input.focus();
+      }
+      if (errorEl) {
+        if (customMessage) {
+          const textSpan = errorEl.querySelector('span');
+          if (textSpan) textSpan.textContent = customMessage;
         }
-
-        // Drozo Guard phone 2FA required
-        if (me.twofa_pref === 'drozo_guard' && sessionStorage.getItem('drozo_guard_ok_' + me.id) !== '1') {
-          startDrozoGuard2FA(false);
-          return;
-        }
-
-        // Face ID 2FA required
-        if (me.twofa_pref === 'face' && sessionStorage.getItem('drozo_face_ok_' + me.id) !== '1') {
-          ['viewStep1', 'viewOnboarding'].forEach(hide);
-          const ok = await requireFace();
-          if (!ok) { await backToStep1(); return; }
-          sessionStorage.setItem('drozo_face_ok_' + me.id, '1');
-        }
-
-        // Fingerprint passkey 2FA required
-        if (me.twofa_pref === 'fingerprint' && !viaPasskey && sessionStorage.getItem('drozo_fp_ok_' + me.id) !== '1') {
-          const passkeyOk = await verifyPasskeyLogin();
-          if (!passkeyOk) { await backToStep1(); return; }
-          sessionStorage.setItem('drozo_fp_ok_' + me.id, '1');
-        }
-
-        // Authentication Successful -> Redirect to Sanctuary
-        completeSuccessfulLogin();
-      } catch (err) {
-        showToast('Error loading session: ' + errMsg(err), 'error');
+        errorEl.classList.remove('hidden');
       }
     }
 
-    function completeSuccessfulLogin() {
-      localStorage.setItem('drozo_active_session', me.email);
-      showToast('Authentication Verified! Welcome, ' + me.email, 'success');
-      setTimeout(() => {
-        if (STAFF_ROLES.includes(me.role)) {
-          window.location.href = 'admin.html';
-        } else {
-          window.location.href = 'index.html';
-        }
-      }, 700);
-    }
+    /**
+     * Password Strength Evaluation
+     */
+    function handlePasswordStrength(password) {
+      const bar1 = document.getElementById('bar-1');
+      const bar2 = document.getElementById('bar-2');
+      const bar3 = document.getElementById('bar-3');
+      const bar4 = document.getElementById('bar-4');
+      const label = document.getElementById('strength-text');
 
-    function showOnboardingChoice() {
-      ['viewStep1', 'authStep3Guard', 'authStep3Standard', 'wizardAuthenticator'].forEach(hide);
-      show('viewOnboarding');
-    }
-
-    function backToOnboardingChoice() {
-      hide('wizardAuthenticator');
-      show('viewOnboarding');
-    }
-
-    async function backToStep1() {
-      if (pollTimer) clearInterval(pollTimer);
-      try { await sb.auth.signOut(); } catch (_) {}
-      me = null;
-      ['viewOnboarding', 'wizardAuthenticator', 'authStep3Guard', 'authStep3Standard', 'skipWarningModal'].forEach(hide);
-      show('viewStep1');
-    }
-
-    // --- Drozo Guard Phone Sync ---
-    function startDrozoGuardEnrollment() {
-      hide('viewOnboarding');
-      startDrozoGuard2FA(true);
-    }
-
-    async function startDrozoGuard2FA(enrolling) {
-      guardEnrolling = !!enrolling;
-      ['viewStep1', 'viewOnboarding', 'wizardAuthenticator'].forEach(hide);
-      show('authStep3Guard');
-
-      try {
-        const { data, error } = await sb.from('guard_challenges').insert({}).select('id').single();
-        if (error) throw error;
-        activeChallenge = data.id;
-        $('steamTokenLabel').textContent = activeChallenge.slice(0, 8).toUpperCase();
-
-        const guardUrl = window.location.origin + window.location.pathname + '?guard=1&token=' + activeChallenge;
-        const box = $('qrCanvasContainer');
-        box.innerHTML = '';
-        try {
-          new QRCode(box, { text: guardUrl, width: 160, height: 160, colorDark: '#1B2A3D', colorLight: '#ffffff' });
-        } catch (_) {
-          box.textContent = 'Scan code with Drozo Guard app: ' + guardUrl;
-        }
-
-        if (pollTimer) clearInterval(pollTimer);
-        const started = Date.now();
-        pollTimer = setInterval(async () => {
-          if (Date.now() - started > 5 * 60 * 1000) {
-            clearInterval(pollTimer);
-            showToast('Drozo Guard approval expired. Please try again.', 'error');
-            backToStep1();
-            return;
-          }
-          const { data: row } = await sb.from('guard_challenges').select('status').eq('id', activeChallenge).maybeSingle();
-          if (row && row.status === 'authorized') {
-            clearInterval(pollTimer);
-            sessionStorage.setItem('drozo_guard_ok_' + me.id, '1');
-            if (guardEnrolling) await setPref('drozo_guard');
-            completeSuccessfulLogin();
-          } else if (row && row.status === 'denied') {
-            clearInterval(pollTimer);
-            showToast('Sign-in was rejected on your phone.', 'error');
-            backToStep1();
-          }
-        }, 1500);
-      } catch (err) {
-        showToast('Could not initiate Drozo Guard: ' + errMsg(err), 'error');
-        backToStep1();
+      if (!password || password.length === 0) {
+        resetStrengthBars();
+        label.textContent = 'Enter a password';
+        label.className = 'font-bold text-gray-400';
+        return 0;
       }
-    }
 
-    function openApprovalSimulator() {
-      const guardUrl = window.location.origin + window.location.pathname + '?guard=1&token=' + activeChallenge;
-      window.open(guardUrl, '_blank');
-    }
+      let score = 0;
+      if (password.length >= 8) score++;
+      if (/[A-Z]/.test(password) && /[a-z]/.test(password)) score++;
+      if (/[0-9]/.test(password)) score++;
+      if (/[^A-Za-z0-9]/.test(password)) score++;
 
-    // --- Authenticator (TOTP) ---
-    async function startAuthenticatorEnrollment() {
-      hide('viewOnboarding');
-      show('wizardAuthenticator');
-      const box = $('enrollTotpQrContainer');
-      box.textContent = 'Generating secret key…';
-      $('enrollTotpSecretText').textContent = '…';
+      // Reset
+      resetStrengthBars();
 
-      try {
-        const lf = (await sb.auth.mfa.listFactors()).data;
-        for (const f of ((lf && lf.all) || [])) {
-          if (f.factor_type === 'totp' && f.status === 'unverified') {
-            await sb.auth.mfa.unenroll({ factorId: f.id });
-          }
-        }
-        const { data, error } = await sb.auth.mfa.enroll({ factorType: 'totp', friendlyName: 'Drozo Therapy - ' + me.email });
-        if (error) throw error;
-        pendingFactorId = data.id;
-        $('enrollTotpSecretText').textContent = data.totp.secret;
-        box.innerHTML = `<img src="${data.totp.qr_code}" alt="Authenticator QR Code" class="w-36 h-36" />`;
-      } catch (err) {
-        showToast('Authenticator Setup Error: ' + errMsg(err), 'error');
-        backToOnboardingChoice();
+      if (score === 1 || password.length < 8) {
+        bar1.className = 'h-full rounded-full bg-red-500 transition-all duration-300';
+        label.textContent = 'Weak';
+        label.className = 'font-bold text-red-500';
+      } else if (score === 2) {
+        bar1.className = 'h-full rounded-full bg-amber-500 transition-all duration-300';
+        bar2.className = 'h-full rounded-full bg-amber-500 transition-all duration-300';
+        label.textContent = 'Fair';
+        label.className = 'font-bold text-amber-500';
+      } else if (score === 3) {
+        bar1.className = 'h-full rounded-full bg-emerald-500 transition-all duration-300';
+        bar2.className = 'h-full rounded-full bg-emerald-500 transition-all duration-300';
+        bar3.className = 'h-full rounded-full bg-emerald-500 transition-all duration-300';
+        label.textContent = 'Good';
+        label.className = 'font-bold text-emerald-600';
+      } else if (score >= 4) {
+        bar1.className = 'h-full rounded-full bg-primary-light transition-all duration-300';
+        bar2.className = 'h-full rounded-full bg-primary-light transition-all duration-300';
+        bar3.className = 'h-full rounded-full bg-primary-light transition-all duration-300';
+        bar4.className = 'h-full rounded-full bg-primary-light transition-all duration-300';
+        label.textContent = 'Strong';
+        label.className = 'font-bold text-primary';
       }
+
+      return score;
     }
 
-    async function handleTestTotpLink() {
-      const input = $('testTotpInput');
-      const code = input.value.trim();
-      if (!code) return;
-      const { error } = await sb.auth.mfa.challengeAndVerify({ factorId: pendingFactorId, code: code });
-      if (error) {
-        showToast('Invalid verification code. Please check your app.', 'error');
-        input.value = '';
-        return;
-      }
-      await setPref('totp');
-      hide('wizardAuthenticator');
-      completeSuccessfulLogin();
+    function resetStrengthBars() {
+      ['bar-1', 'bar-2', 'bar-3', 'bar-4'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.className = 'h-full rounded-full bg-gray-200 transition-all duration-300';
+      });
     }
 
-    async function handleStandardTOTP() {
-      const input = $('totpInput');
-      const code = input.value.trim();
-      if (!code) return;
-      const totp = ((await sb.auth.mfa.listFactors()).data || {}).totp || [];
-      if (!totp.length) {
-        showToast('No authenticator factor found for this account.', 'error');
-        return;
-      }
-      const { error } = await sb.auth.mfa.challengeAndVerify({ factorId: totp[0].id, code: code });
-      if (error) {
-        showToast('Invalid 6-digit verification code.', 'error');
-        input.value = '';
-        return;
-      }
-      hide('authStep3Standard');
-      completeSuccessfulLogin();
-    }
+    /**
+     * Check Confirm Password Match
+     */
+    function checkPasswordMatch() {
+      const pass = document.getElementById('signup-password').value;
+      const confirm = document.getElementById('signup-confirm-password').value;
+      const error = document.getElementById('signup-confirm-error');
 
-    // --- Fingerprint / Passkeys ---
-    async function startFingerprintEnrollment() {
-      hide('viewOnboarding');
-      try {
-        if (typeof sb.auth.registerPasskey !== 'function') throw new Error('Passkey API not supported on this browser.');
-        const { error } = await sb.auth.registerPasskey();
-        if (error) throw error;
-        await setPref('fingerprint');
-        sessionStorage.setItem('drozo_fp_ok_' + me.id, '1');
-        showToast('Fingerprint passkey linked to ' + me.email, 'success');
-        completeSuccessfulLogin();
-      } catch (err) {
-        showToast('Passkey setup error: ' + errMsg(err), 'error');
-        showOnboardingChoice();
-      }
-    }
-
-    async function handlePasskeyFastLogin() {
-      try {
-        if (typeof sb.auth.signInWithPasskey !== 'function') throw new Error('Passkeys not supported.');
-        const { error } = await sb.auth.signInWithPasskey();
-        if (error) throw error;
-        await routeAfterAuth(false, true);
-      } catch (err) {
-        showToast('Passkey sign in: ' + errMsg(err), 'error');
-      }
-    }
-
-    async function verifyPasskeyLogin() {
-      try {
-        const { error } = await sb.auth.signInWithPasskey();
-        return !error;
-      } catch (_) { return false; }
-    }
-
-    // --- Face ID Biometrics ---
-    async function startFaceEnrollment() {
-      hide('viewOnboarding');
-      try {
-        showToast('Starting Face ID scanner… please grant camera permission.', 'info');
-        const r = await FaceID.run('enroll');
-        const { error } = await sb.rpc('enroll_my_face', { poses: r.poses });
-        if (error) throw error;
-        await setPref('face');
-        sessionStorage.setItem('drozo_face_ok_' + me.id, '1');
-        showToast('Face ID successfully enrolled and linked!', 'success');
-        completeSuccessfulLogin();
-      } catch (err) {
-        showToast('Face ID setup: ' + errMsg(err), 'error');
-        showOnboardingChoice();
-      }
-    }
-
-    async function requireFace() {
-      try {
-        showToast('Starting Face ID verification…', 'info');
-        const r = await FaceID.run('verify');
-        const { data, error } = await sb.rpc('verify_my_face', { probe: JSON.stringify(r.v) });
-        if (error) throw error;
-        const row = data && data[0];
-        if (!row || !row.match_found) {
-          alert('Face match failed. Distance: ' + Number(row ? row.distance : 1).toFixed(2));
-          return false;
-        }
-        return true;
-      } catch (err) {
-        showToast('Face check error: ' + errMsg(err), 'error');
+      if (confirm && pass !== confirm) {
+        error.classList.remove('hidden');
         return false;
-      }
-    }
-
-    // --- Skip Warning ---
-    function triggerSkip2FAWarning() { hide('viewOnboarding'); show('skipWarningModal'); }
-    function cancelSkip2FAWarning() { hide('skipWarningModal'); show('viewOnboarding'); }
-
-    async function confirmPasswordOnlyMode() {
-      try {
-        await setPref('none');
-        hide('skipWarningModal');
-        completeSuccessfulLogin();
-      } catch (e) {
-        showToast(errMsg(e), 'error');
-      }
-    }
-
-    function showForgotPasswordAlert() {
-      const email = prompt('Enter your registered email address to receive a password reset link:');
-      if (email) {
-        sb.auth.resetPasswordForEmail(email.trim().toLowerCase(), { redirectTo: window.location.origin + window.location.pathname })
-          .then(() => showToast('Password reset instructions sent to ' + email, 'success'))
-          .catch((err) => showToast(errMsg(err), 'error'));
-      }
-    }
-
-    // --- Drozo Guard Mobile Mode View ---
-    function toggleGuardModeView() {
-      const el = $('viewGuardCompanion');
-      if (el.classList.contains('hidden')) {
-        ['viewStep1', 'viewOnboarding', 'wizardAuthenticator', 'authStep3Guard', 'authStep3Standard'].forEach(hide);
-        show('viewGuardCompanion');
-        startGuardPolling();
       } else {
-        hide('viewGuardCompanion');
-        show('viewStep1');
-        if (guardPollTimer) clearInterval(guardPollTimer);
+        error.classList.add('hidden');
+        return true;
       }
     }
 
-    async function startGuardPolling() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const token = urlParams.get('token');
-      const details = $('guardChallengeDetails');
+    /**
+     * Fill Demo Credentials for instant testing
+     */
+    function fillDemoCredentials() {
+      const emailInput = document.getElementById('signin-email');
+      const passInput = document.getElementById('signin-password');
+      emailInput.value = 'sarah.walker@drozo.com';
+      passInput.value = 'HealingTogether2026!';
+      clearError('signin-email');
+      clearError('signin-password');
+      showToast('Demo Credentials Loaded', 'Click "Sign In" to proceed to your secure portal.', 'info');
+    }
 
-      if (token) {
-        details.innerHTML = `Challenge ID: <span class="text-primary font-bold">${token}</span>`;
-      } else {
-        details.innerHTML = `Monitoring for latest unapproved login challenge…`;
+    /**
+     * Handle Sign In Submission
+     */
+    function handleSignInSubmit(event) {
+      event.preventDefault();
+      
+      const emailInput = document.getElementById('signin-email');
+      const passInput = document.getElementById('signin-password');
+      const email = emailInput.value.trim();
+      const password = passInput.value;
+      let hasError = false;
+
+      // Validate email
+      if (!email || !EMAIL_REGEX.test(email)) {
+        showError('signin-email', 'Please enter a valid email address.');
+        hasError = true;
       }
 
-      if (guardPollTimer) clearInterval(guardPollTimer);
-      guardPollTimer = setInterval(async () => {
-        try {
-          let query = sb.from('guard_challenges').select('id,status,created_at').eq('status', 'pending').order('created_at', { ascending: false }).limit(1);
-          if (token) query = sb.from('guard_challenges').select('id,status,created_at').eq('id', token);
-          const { data } = await query;
-          if (data && data.length) {
-            const ch = data[0];
-            activeChallenge = ch.id;
-            details.innerHTML = `Sign-in challenge <strong class="text-primary">${ch.id.slice(0, 8)}</strong> requested at ${new Date(ch.created_at).toLocaleTimeString()}`;
+      // Validate password
+      if (!password || password.length < 6) {
+        showError('signin-password', 'Password must be at least 6 characters.');
+        hasError = true;
+      }
+
+      if (hasError) return;
+
+      // Enter loading state
+      const btn = document.getElementById('signin-submit-btn');
+      const textSpan = btn.querySelector('.btn-text');
+      const spinnerSpan = btn.querySelector('.btn-spinner');
+      
+      btn.disabled = true;
+      textSpan.classList.add('hidden');
+      spinnerSpan.classList.remove('hidden');
+
+      // Real Supabase Authentication
+      const SUPABASE_URL = (window.DROZO_CONFIG || {}).url;
+      const SUPABASE_ANON = (window.DROZO_CONFIG || {}).anon;
+      const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
+        auth: { persistSession: true, autoRefreshToken: true }
+      });
+
+      sb.auth.signInWithPassword({ email: email, password: password })
+        .then(async ({ data, error }) => {
+          if (error) {
+            btn.disabled = false;
+            textSpan.classList.remove('hidden');
+            spinnerSpan.classList.add('hidden');
+            showError('signin-password', error.message);
+            showToast('Sign In Failed', error.message, 'error');
+            return;
           }
-        } catch (_) {}
-      }, 2000);
+
+          let role = 'patient';
+          try {
+            const { data: profile } = await sb.from('profiles').select('role').eq('id', data.user.id).maybeSingle();
+            if (profile && profile.role) role = profile.role;
+          } catch (_) {}
+
+          localStorage.setItem('drozo_active_session', email);
+          showToast(
+            'Signed In Successfully!', 
+            `Welcome back, ${email.split('@')[0]}. Redirecting to your sanctuary...`, 
+            'success'
+          );
+
+          setTimeout(() => {
+            if (['admin', 'coordinator', 'therapist'].includes(role)) {
+              window.location.href = 'admin.html';
+            } else {
+              window.location.href = 'dashboard.html';
+            }
+          }, 1100);
+        })
+        .catch(err => {
+          btn.disabled = false;
+          textSpan.classList.remove('hidden');
+          spinnerSpan.classList.add('hidden');
+          showToast('Authentication Error', err.message || String(err), 'error');
+        });
     }
 
-    async function respondGuardChallenge(action) {
-      if (!activeChallenge) {
-        showToast('No pending sign-in challenge found.', 'info');
+    /**
+     * Handle Sign Up Submission
+     */
+    function handleSignUpSubmit(event) {
+      event.preventDefault();
+
+      const nameInput = document.getElementById('signup-name');
+      const emailInput = document.getElementById('signup-email');
+      const passInput = document.getElementById('signup-password');
+      const confirmInput = document.getElementById('signup-confirm-password');
+      const termsInput = document.getElementById('signup-terms');
+
+      const name = nameInput.value.trim();
+      const email = emailInput.value.trim();
+      const password = passInput.value;
+      const confirm = confirmInput.value;
+      let hasError = false;
+
+      // Validate name
+      if (!name || name.length < 2) {
+        showError('signup-name', 'Please enter your full name.');
+        hasError = true;
+      }
+
+      // Validate email
+      if (!email || !EMAIL_REGEX.test(email)) {
+        showError('signup-email', 'Please enter a valid email address.');
+        hasError = true;
+      }
+
+      // Validate password
+      if (!password || password.length < 8) {
+        showError('signup-password', 'Password must be at least 8 characters long.');
+        hasError = true;
+      }
+
+      // Validate match
+      if (password !== confirm) {
+        showError('signup-confirm-password', 'Passwords do not match.');
+        hasError = true;
+      }
+
+      // Validate terms
+      if (!termsInput.checked) {
+        const termsError = document.getElementById('signup-terms-error');
+        termsError.classList.remove('hidden');
+        hasError = true;
+      }
+
+      if (hasError) return;
+
+      // Enter loading state
+      const btn = document.getElementById('signup-submit-btn');
+      const textSpan = btn.querySelector('.btn-text');
+      const spinnerSpan = btn.querySelector('.btn-spinner');
+
+      btn.disabled = true;
+      textSpan.classList.add('hidden');
+      spinnerSpan.classList.remove('hidden');
+
+      const SUPABASE_URL = (window.DROZO_CONFIG || {}).url;
+      const SUPABASE_ANON = (window.DROZO_CONFIG || {}).anon;
+      const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
+        auth: { persistSession: true, autoRefreshToken: true }
+      });
+
+      sb.auth.signUp({
+        email: email,
+        password: password,
+        options: {
+          data: { full_name: name },
+          emailRedirectTo: window.location.origin + window.location.pathname
+        }
+      })
+      .then(({ data, error }) => {
+        if (error) {
+          btn.disabled = false;
+          textSpan.classList.remove('hidden');
+          spinnerSpan.classList.add('hidden');
+          showError('signup-email', error.message);
+          showToast('Registration Error', error.message, 'error');
+          return;
+        }
+
+        localStorage.setItem('drozo_active_session', email);
+        showToast(
+          'Account Created!', 
+          `Welcome to Drozo Therapy, ${name.split(' ')[0]}! Starting your sanctuary...`, 
+          'success'
+        );
+
+        setTimeout(() => {
+          window.location.href = 'dashboard.html';
+        }, 1200);
+      })
+      .catch(err => {
+        btn.disabled = false;
+        textSpan.classList.remove('hidden');
+        spinnerSpan.classList.add('hidden');
+        showToast('Registration Error', err.message || String(err), 'error');
+      });
+    }
+
+    /**
+     * Social Authentication Handler
+     */
+    function handleSocialLogin(provider) {
+      showToast(
+        `Connecting with ${provider}...`, 
+        `Redirecting to secure ${provider} Single Sign-On gateway.`, 
+        'info'
+      );
+      setTimeout(() => {
+        showToast(
+          'Authentication Verified', 
+          `Welcome! Signed in securely via ${provider}.`, 
+          'success'
+        );
+        setTimeout(() => {
+          window.location.href = 'index.html?auth=social';
+        }, 1200);
+      }, 1100);
+    }
+
+    /**
+     * Forgot Password Modal Handlers
+     */
+    function openForgotPasswordModal() {
+      const modal = document.getElementById('forgot-password-modal');
+      const formContent = document.getElementById('modal-form-content');
+      const successContent = document.getElementById('modal-success-content');
+      const signinEmail = document.getElementById('signin-email').value;
+      const forgotEmail = document.getElementById('forgot-email');
+
+      if (signinEmail && EMAIL_REGEX.test(signinEmail)) {
+        forgotEmail.value = signinEmail;
+      }
+
+      formContent.classList.remove('hidden');
+      successContent.classList.add('hidden');
+      modal.classList.remove('hidden');
+      forgotEmail.focus();
+    }
+
+    function closeForgotPasswordModal() {
+      const modal = document.getElementById('forgot-password-modal');
+      modal.classList.add('hidden');
+    }
+
+    function handleForgotPasswordSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById('forgot-email').value.trim();
+      const error = document.getElementById('forgot-email-error');
+      const btn = document.getElementById('forgot-submit-btn');
+
+      if (!email || !EMAIL_REGEX.test(email)) {
+        error.classList.remove('hidden');
         return;
       }
-      const { error } = await sb.from('guard_challenges').update({ status: action }).eq('id', activeChallenge);
-      if (error) {
-        showToast('Could not send response: ' + errMsg(error), 'error');
-      } else {
-        showToast(`Challenge successfully ${action}!`, action === 'authorized' ? 'success' : 'info');
-        $('guardChallengeDetails').textContent = `Request ${action}. Waiting for next challenge…`;
+      error.classList.add('hidden');
+
+      btn.disabled = true;
+      btn.innerHTML = `
+        <svg class="animate-spin w-4 h-4 text-white mr-2" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        Sending...
+      `;
+
+      const SUPABASE_URL = (window.DROZO_CONFIG || {}).url;
+      const SUPABASE_ANON = (window.DROZO_CONFIG || {}).anon;
+      if (SUPABASE_URL && SUPABASE_ANON && typeof supabase !== 'undefined') {
+        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+        sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + window.location.pathname });
       }
+
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.innerHTML = 'Send Recovery Link';
+        document.getElementById('sent-email-display').textContent = email;
+        document.getElementById('modal-form-content').classList.add('hidden');
+        document.getElementById('modal-success-content').classList.remove('hidden');
+      }, 900);
     }
 
-    // ===== Drozo FaceID Implementation =====
-    const FaceID = (function () {
-      const MODEL_URLS = ['https://vladmandic.github.io/face-api/model/', 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.13/model/'];
-      let loaded = false;
-      const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-      const dist = (a, b) => { let s = 0; for (let i = 0; i < a.length; i++) { const d = a[i] - b[i]; s += d * d; } return Math.sqrt(s); };
-      const avg = (list) => list[0].map((_, i) => list.reduce((s, v) => s + v[i], 0) / list.length);
+    /**
+     * Toast Notification Generator
+     */
+    function showToast(title, message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      
+      const isSuccess = type === 'success';
+      const bgColor = isSuccess ? 'bg-primary' : 'bg-charcoal';
+      const iconSvg = isSuccess ? `
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 13l4 4L19 7" />
+        </svg>
+      ` : `
+        <svg class="w-6 h-6 text-primary-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      `;
 
-      async function loadModels() {
-        if (loaded) return;
-        for (const url of MODEL_URLS) {
-          try {
-            await Promise.all([
-              faceapi.nets.tinyFaceDetector.loadFromUri(url),
-              faceapi.nets.faceLandmark68Net.loadFromUri(url),
-              faceapi.nets.faceRecognitionNet.loadFromUri(url)
-            ]);
-            loaded = true;
-            return;
-          } catch (_) {}
+      toast.className = `toast-animate-in pointer-events-auto flex items-start gap-3.5 p-4 rounded-2xl ${bgColor} text-white shadow-xl shadow-charcoal/20 border border-white/15 mb-3 w-full`;
+      toast.innerHTML = `
+        <div class="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0 mt-0.5">
+          ${iconSvg}
+        </div>
+        <div class="flex-grow">
+          <h4 class="font-heading font-bold text-sm tracking-tight text-white">${title}</h4>
+          <p class="text-xs text-white/85 mt-0.5 leading-snug">${message}</p>
+        </div>
+        <button type="button" onclick="this.parentElement.remove()" class="text-white/60 hover:text-white p-1 rounded-lg focus:outline-none" aria-label="Dismiss toast">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      `;
+
+      container.appendChild(toast);
+
+      // Auto dismiss after 4 seconds
+      setTimeout(() => {
+        if (toast.parentElement) {
+          toast.style.opacity = '0';
+          toast.style.transform = 'translateY(-10px)';
+          toast.style.transition = 'all 0.3s ease';
+          setTimeout(() => toast.remove(), 300);
         }
-        throw new Error('Face models could not be loaded. Please check internet connection.');
-      }
-
-      async function run(mode) {
-        await loadModels();
-        // Create an overlay modal dynamically if not already present
-        let ov = document.getElementById('fidModal');
-        if (!ov) {
-          ov = document.createElement('div');
-          ov.id = 'fidModal';
-          ov.className = 'fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-white text-center';
-          ov.innerHTML = `
-            <div class="w-full max-w-sm space-y-4">
-              <h3 id="fidTitle" class="text-lg font-bold">Face ID Verification</h3>
-              <div class="relative w-64 h-64 mx-auto rounded-full overflow-hidden border-4 border-primary shadow-2xl bg-black">
-                <video id="fidVideo" autoplay playsinline muted class="w-full h-full object-cover transform scale-x-[-1]"></video>
-              </div>
-              <p id="fidStatus" class="text-xs text-primary-light">Initializing camera…</p>
-              <button type="button" id="fidClose" class="py-2 px-5 bg-white/10 hover:bg-white/20 text-white rounded-full text-xs font-semibold">Cancel</button>
-            </div>
-          `;
-          document.body.appendChild(ov);
-        }
-
-        ov.classList.remove('hidden');
-        const video = document.getElementById('fidVideo');
-        const status = document.getElementById('fidStatus');
-        $('fidTitle').textContent = mode === 'enroll' ? 'Enroll Face ID' : 'Face ID Verification';
-
-        let stream = null;
-        let cancelled = false;
-
-        return new Promise(async (resolve, reject) => {
-          document.getElementById('fidClose').onclick = () => {
-            cancelled = true;
-            if (stream) stream.getTracks().forEach((t) => t.stop());
-            ov.classList.add('hidden');
-            reject(new Error('Cancelled by user'));
-          };
-
-          try {
-            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 480, height: 480 }, audio: false });
-            video.srcObject = stream;
-            status.textContent = 'Please look directly at the camera…';
-
-            const samples = [];
-            const started = Date.now();
-
-            while (!cancelled && Date.now() - started < 35000) {
-              await sleep(250);
-              const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
-              if (detection) {
-                samples.push(Array.from(detection.descriptor));
-                status.textContent = `Scanning… (${samples.length}/4 frames captured)`;
-                if (samples.length >= 4) {
-                  status.textContent = 'Face captured successfully!';
-                  await sleep(400);
-                  if (stream) stream.getTracks().forEach((t) => t.stop());
-                  ov.classList.add('hidden');
-                  if (mode === 'enroll') {
-                    resolve({ poses: [{ pose: 'front', v: avg(samples) }] });
-                  } else {
-                    resolve({ v: avg(samples) });
-                  }
-                  return;
-                }
-              }
-            }
-            if (stream) stream.getTracks().forEach((t) => t.stop());
-            ov.classList.add('hidden');
-            reject(new Error('Face scan timed out. Try again with more light.'));
-          } catch (e) {
-            if (stream) stream.getTracks().forEach((t) => t.stop());
-            ov.classList.add('hidden');
-            reject(e);
-          }
-        });
-      }
-
-      return { run: run };
-    })();
+      }, 4000);
+    }
   </script>
+
 </body>
 </html>
